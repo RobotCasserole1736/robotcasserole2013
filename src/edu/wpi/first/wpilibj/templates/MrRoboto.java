@@ -49,8 +49,7 @@ public class MrRoboto extends IterativeRobot {
             ex.printStackTrace();
         }
         drive = new RobotDrive(leftDrive, rightDrive);
-        shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL);
-        
+        shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL);   
     }
  
     /**
@@ -82,6 +81,7 @@ public class MrRoboto extends IterativeRobot {
         // add logic for each button here as needed
         
     }  
+    
     /**
      * This function is called periodically during test mode
      */
