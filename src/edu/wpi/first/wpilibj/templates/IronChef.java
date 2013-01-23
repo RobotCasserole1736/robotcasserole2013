@@ -24,6 +24,8 @@ public class IronChef extends IterativeRobot {
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
+    // this is a comment
+    
     RobotDrive drive;
     Joystick joystick;
     public void robotInit() {
