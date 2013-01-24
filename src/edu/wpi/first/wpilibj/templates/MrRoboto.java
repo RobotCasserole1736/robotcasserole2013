@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 public class MrRoboto extends IterativeRobot {
     RobotDrive drive;
     XBoxC controller;
-    CANJaguar leftDrive, rightDrive;
+    CANJaguar leftDrive, rightDrive, conveyor;
     Shooter shooter;
     
     public static final int   
@@ -32,6 +32,7 @@ public class MrRoboto extends IterativeRobot {
             RIGHT_DRIVE_ID = 7,
             SHOOTER_DRIVE_ID = 1, 
             LOADER_DRIVE_ID = -1, // not actually this
+            CONVEYOR_ID = -1,
             LOADER_SWITCH_CHANNEL = -1, // not actually this
             DRIVER_ID = 1,
             OPERATOR_ID = 2;
@@ -45,6 +46,7 @@ public class MrRoboto extends IterativeRobot {
         try {
             leftDrive = new CANJaguar(LEFT_DRIVE_ID);
             rightDrive = new CANJaguar(RIGHT_DRIVE_ID);
+            conveyor = new CANJaguar(CONVEYOR_ID);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
@@ -80,6 +82,27 @@ public class MrRoboto extends IterativeRobot {
            shooter.fire(); 
         }
         // add logic for each button here as needed
+        if (XBoxC.OPERATOR.getRawAxis(3)>.5){
+            try {
+                conveyor.setX(1.0);
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if(XBoxC.OPERATOR.getRawAxis(3)<-.5){
+            try {
+                conveyor.setX(-1.0);
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else{
+            try {
+                conveyor.setX(0.0);
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
+        }
         
     }  
     /**
