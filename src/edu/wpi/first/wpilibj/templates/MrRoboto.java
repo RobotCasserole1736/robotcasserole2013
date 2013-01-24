@@ -7,7 +7,6 @@
 
 package edu.wpi.first.wpilibj.templates;
 
-
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -24,12 +23,22 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 public class MrRoboto extends IterativeRobot {
     RobotDrive drive;
     XBoxC controller;
-    CANJaguar leftDrive, rightDrive;
+    CANJaguar 
+            frontLeftDrive, 
+            rearLeftDrive,
+            frontRightDrive,
+            rearRightDrive;
+               
     Shooter shooter;
+    Vision camera;
     
-    public static final int   
-            LEFT_DRIVE_ID = 2,
-            RIGHT_DRIVE_ID = 7,
+    public static final int
+            // TODO: get constants for motor id's
+            REAR_LEFT_DRV_ID = -1,
+            FRNT_LEFT_DRV_ID = -1,
+            REAR_RIGHT_DRV_ID = -1,
+            FRNT_RIGHT_DRV_ID = -1,
+            
             SHOOTER_DRIVE_ID = 1, 
             LOADER_DRIVE_ID = -1, // not actually this
             LOADER_SWITCH_CHANNEL = -1, // not actually this
@@ -43,13 +52,17 @@ public class MrRoboto extends IterativeRobot {
         XBoxC.DRIVER=new XBoxC(DRIVER_ID);
         XBoxC.OPERATOR=new XBoxC(OPERATOR_ID);
         try {
-            leftDrive = new CANJaguar(LEFT_DRIVE_ID);
-            rightDrive = new CANJaguar(RIGHT_DRIVE_ID);
+            frontLeftDrive  = new CANJaguar(FRNT_LEFT_DRV_ID);
+            rearLeftDrive   = new CANJaguar(REAR_LEFT_DRV_ID);
+            frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
+            rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
+            
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-        drive = new RobotDrive(leftDrive, rightDrive);
-        shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL);   
+        drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
+        shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL);
+        camera = new Vision();    
     }
  
     /**
@@ -66,18 +79,10 @@ public class MrRoboto extends IterativeRobot {
         drive.arcadeDrive(XBoxC.DRIVER);
         shooter.periodic();
                
-        if (XBoxC.OPERATOR.RB.nowPressed()) {
-            shooter.incrSpeed();
-        }
-        if (XBoxC.OPERATOR.LB.nowPressed()) {
-            shooter.decrSpeed();
-        }
-        if (XBoxC.OPERATOR.B.nowPressed()) {
-            shooter.toggleShooter();
-        }
-        if (XBoxC.OPERATOR.A.nowPressed()) {
-           shooter.fire(); 
-        }
+        if (XBoxC.OPERATOR.RB.nowPressed()) shooter.incrSpeed();  
+        if (XBoxC.OPERATOR.LB.nowPressed()) shooter.decrSpeed();
+        if (XBoxC.OPERATOR.B.nowPressed())  shooter.toggleShooter();
+        if (XBoxC.OPERATOR.A.nowPressed())  shooter.fire();
         // add logic for each button here as needed
         
     }  

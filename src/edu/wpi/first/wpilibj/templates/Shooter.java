@@ -25,11 +25,11 @@ public class Shooter {
     public Shooter(int shooterID, int loaderID, int loaderSwChannel) {
         try {
             shooterMotor = new CANJaguar(shooterID);
-            shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
-            shooterMotor.enableControl();
-            shooterMotor.setPID(-0.10, -0.05, -0.00);
-            shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-            shooterMotor.configEncoderCodesPerRev(360);
+                shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
+                shooterMotor.enableControl();
+                shooterMotor.setPID(-0.10, -0.05, -0.00);
+                shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+                shooterMotor.configEncoderCodesPerRev(360);
             
             loaderMotor = new CANJaguar(loaderID);
         } catch (CANTimeoutException ex) {
