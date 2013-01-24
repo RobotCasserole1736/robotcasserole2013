@@ -14,20 +14,22 @@ public class Shooter {
     private double m_curSpeed; // -1.0 to 1.0 scale, percentage
     public boolean loaderRunning; // true, loader running. false, loader ready
     
-    private final double LOADER_CAN_SPEED = 0.50,
-                        /* TODO: get real constants from electrical team */
-                        SHOOTER_MAX_RPM = 1000.0,
-                        SHOOTER_BASE_RPM = 500.0,
-                        SHOOTER_RPM_INCR = 20.0;
-                        
+    private final double 
+            LOADER_CAN_SPEED = 0.50,
+            /* TODO: get real constants from electrical team */
+            SHOOTER_MAX_RPM = 1000.0,
+            SHOOTER_BASE_RPM = 500.0,
+            SHOOTER_RPM_INCR = 20.0;
 
     // Class constructor
     public Shooter(int shooterID, int loaderID, int loaderSwChannel) {
         try {
             shooterMotor = new CANJaguar(shooterID);
-            shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
-            shooterMotor.enableControl();
-            shooterMotor.setPID(0.10, 0.05, 0.00);
+                shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
+                shooterMotor.enableControl();
+                shooterMotor.setPID(-0.10, -0.05, -0.00);
+                shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+                shooterMotor.configEncoderCodesPerRev(360);
             
             loaderMotor = new CANJaguar(loaderID);
         } catch (CANTimeoutException ex) {
