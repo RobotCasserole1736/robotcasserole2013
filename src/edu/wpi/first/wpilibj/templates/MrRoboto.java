@@ -27,7 +27,8 @@ public class MrRoboto extends IterativeRobot {
             frontLeftDrive, 
             rearLeftDrive,
             frontRightDrive,
-            rearRightDrive;
+            rearRightDrive,
+            conveyor;
                
     Shooter shooter;
     Vision camera;
@@ -57,7 +58,7 @@ public class MrRoboto extends IterativeRobot {
             rearLeftDrive   = new CANJaguar(REAR_LEFT_DRV_ID);
             frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
             rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
-            
+            conveyor = new CANJaguar(CONVEYOR_ID);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
