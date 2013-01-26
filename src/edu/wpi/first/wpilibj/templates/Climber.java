@@ -5,7 +5,6 @@
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.CANJaguar;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
 /**
@@ -15,11 +14,10 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 public class Climber {
     
     CANJaguar tilt, lift;
-    XBoxC joy;
     double lift_speed = .8;
     double tilt_speed = .8;
      
-    public Climber(int tilt_id, int lift_id, XBoxC joy)
+    public Climber(int tilt_id, int lift_id)
     {
         try {
             tilt = new CANJaguar(tilt_id);
@@ -27,16 +25,15 @@ public class Climber {
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();     
         }
-        this.joy = joy;
     }
     
     public void tilt(boolean activated)
     {
         try {
-            if (joy.getRawButton(3)){
+            if (XBoxC.DRIVER.X.isPressed()){
                 tilt.setX(tilt_speed);
             } 
-            else if (joy.getRawButton(4)){
+            else if (XBoxC.DRIVER.Y.isPressed()){
                 tilt.setX(-tilt_speed);
             }
             else {
@@ -51,10 +48,10 @@ public class Climber {
      public void lift(boolean activated)
     {
         try {
-            if (joy.getRawButton(5)){
+            if (XBoxC.DRIVER.LB.isPressed()){
                 lift.setX(lift_speed);
             } 
-            else if (joy.getRawButton(6)){
+            else if (XBoxC.DRIVER.RB.isPressed()){
                 lift.setX(-lift_speed);
             }
             else {

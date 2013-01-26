@@ -20,10 +20,11 @@ public class XBoxC extends Joystick {
     /**
      *  switch people
      */
-    public static void swapDriverOperator(){
+    public static void swapDriverAndOperator(){
         XBoxC temp=DRIVER;
-        DRIVER=OPERATOR;
+        XBoxC temp2=OPERATOR;
         OPERATOR=temp;
+        DRIVER=temp2;
     }
     public XBoxC(int i){
         super(i);
@@ -47,8 +48,8 @@ public class XBoxC extends Joystick {
                     Y=new Button(4,this),
                     LB=new Button(5,this),
                     RB=new Button(6,this),
-                    START=new Button(7,this),
-                    BACK=new Button(8,this);
+                    START=new Button(8,this),
+                    BACK=new Button(7,this);
     /**
      * the trigger axis id
      */

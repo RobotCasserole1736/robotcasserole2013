@@ -10,8 +10,10 @@ package edu.wpi.first.wpilibj.templates;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.Watchdog;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -22,35 +24,42 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  */
 public class IronChef extends IterativeRobot {
     //function disable/enabling for testing purposes true=>enabled
-    static boolean canDrive=false,canShoot=true,canSee=false,canSwap=false;
+    
+    static boolean 
+            canDrive=true,
+            canShoot=true,
+            canSee=false,
+            canConvey=true,
+            canSwap=true,
+            canClimb=false;
     RobotDrive drive;
     CANJaguar 
             frontLeftDrive, 
             rearLeftDrive,
             frontRightDrive,
             rearRightDrive;
-               
+    Relay conveyorRelay;    
     Shooter shooter;
     Vision camera;
-    
+    public static final boolean LOADER_IS_CAN=false;
     public static final int
-            // TODO: get constants for motor id's
             REAR_LEFT_DRV_ID = 8,
             FRNT_LEFT_DRV_ID = 9,
             REAR_RIGHT_DRV_ID = 10,
             FRNT_RIGHT_DRV_ID = 11,
-            
-            SHOOTER_DRIVE_ID = 6, 
-            LOADER_DRIVE_ID = 3, // not actually this
-            LOADER_SWITCH_CHANNEL = 7, // not actually this
-            DIGITAL_SIDECAR_MODULE=2,
+            CONVEYOR_SPIKE_ID=2,
+            SHOOTER_DRIVE_ID = 12, 
+            LOADER_DRIVE_ID = 9,
+            LOADER_SWITCH_CHANNEL=1,
+            DIGITAL_SIDECAR_MODULE=1,
             DRIVER_ID = 2,
             OPERATOR_ID = 1;
-    /**
+    public Watchdog watchdog=Watchdog.getInstance();/**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit() {
+        Watchdog.getInstance().setExpiration(500);
         XBoxC.DRIVER=new XBoxC(DRIVER_ID);
         XBoxC.OPERATOR=new XBoxC(OPERATOR_ID);
         if (canDrive){
@@ -58,18 +67,21 @@ public class IronChef extends IterativeRobot {
                 frontLeftDrive  = new CANJaguar(FRNT_LEFT_DRV_ID);
                 rearLeftDrive   = new CANJaguar(REAR_LEFT_DRV_ID);
                 frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
-                rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID); 
+                rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
+                drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
             } catch (CANTimeoutException ex) {
                 canDrive=false;
                 ex.printStackTrace();
             }
-            drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE);
+            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
         }
         if (canSee){
             camera = new Vision();    
+        }
+        if (canConvey){
+            conveyorRelay=new Relay(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID);
         }
     }
  
@@ -94,9 +106,19 @@ public class IronChef extends IterativeRobot {
             if (XBoxC.OPERATOR.B.nowPressed())  shooter.toggleShooter();
             if (XBoxC.OPERATOR.A.isPressed())  shooter.fire();
         }
-        
+        if (canConvey){
+            if (XBoxC.OPERATOR.getTriggers()<-0.50){
+                conveyorRelay.set(Relay.Value.kForward);
+            }else if (XBoxC.OPERATOR.getTriggers()>0.50){
+                conveyorRelay.set(Relay.Value.kReverse);
+            }else{
+                conveyorRelay.set(Relay.Value.kOff);
+            }
+        }
         //TODO added for testing
-        //if ((XBoxC.DRIVER.START.nowPressed()||XBoxC.OPERATOR.START.nowPressed())&&canSwap) XBoxC.swapDriverOperator();
+        if ((XBoxC.DRIVER.BACK.isPressed()|XBoxC.OPERATOR.START.isPressed())&&canSwap){
+            XBoxC.swapDriverAndOperator();
+        }
         // add logic for each button here as needed
         
     }  
