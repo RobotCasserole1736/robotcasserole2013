@@ -3,6 +3,7 @@ package edu.wpi.first.wpilibj.templates;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /*
  * @author Ian T.
@@ -12,8 +13,8 @@ public class Shooter {
     CANJaguar shooterMotor, loaderMotor;
     DigitalInput loaderSwitch;
     private double m_curSpeed; // -1.0 to 1.0 scale, percentage
-    public boolean loaderRunning; // true, loader running. false, loader ready
-    
+    public boolean loaderRunning; // true, loader running. false, loader read
+    private boolean m_loaderIsPressed,m_loaderWasPressed;
     private final double 
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
@@ -22,25 +23,29 @@ public class Shooter {
             SHOOTER_RPM_INCR = 20.0;
 
     // Class constructor
-    public Shooter(int shooterID, int loaderID, int loaderSwChannel) {
+    public Shooter(int shooterID, int loaderID, int loaderSwChannel,int loaderSwModule) {
         try {
             shooterMotor = new CANJaguar(shooterID);
                 shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
                 shooterMotor.enableControl();
-                shooterMotor.setPID(-0.10, -0.05, -0.00);
+                shooterMotor.setPID(0.30, 0.005, 0.002);
                 shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
                 shooterMotor.configEncoderCodesPerRev(360);
-            
+            //TODO 
             loaderMotor = new CANJaguar(loaderID);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-        loaderSwitch = new DigitalInput(loaderSwChannel);
+        loaderSwitch = new DigitalInput(loaderSwModule,loaderSwChannel);
     }
-
+    public boolean loaderNowPressed(){
+        m_loaderWasPressed=m_loaderIsPressed;
+        m_loaderIsPressed=loaderSwitch.get();
+        return m_loaderIsPressed&&!m_loaderWasPressed;
+    }
     // Check switch and loader and set loader accordingly
     public void periodic() {
-        if (loaderRunning && loaderSwitch.get()) {
+        if (loaderRunning && loaderNowPressed()) {
             setLoader(false);
         }
     }
@@ -72,6 +77,8 @@ public class Shooter {
         try {
             shooterMotor.setX(percentage);
             m_curSpeed = percentage;
+            SmartDashboard.putNumber("Shooter Speed set", m_curSpeed);
+            SmartDashboard.putNumber("Shooter Speed get", shooterMotor.getSpeed());
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }

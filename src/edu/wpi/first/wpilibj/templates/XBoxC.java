@@ -81,7 +81,12 @@ public class XBoxC extends Joystick {
             return m_wasPressed;
         }
         public boolean nowPressed() {
-            return (isPressed() && !wasPressed());
+            if (isPressed() && !wasPressed()){
+                System.out.print("nowPressed ");
+                System.out.print(id);
+                return true;
+            }
+            return false;
         }
         /**
          * @return returns true if this button is down
