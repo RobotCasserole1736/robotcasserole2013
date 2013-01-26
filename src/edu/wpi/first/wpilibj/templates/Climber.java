@@ -15,57 +15,55 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 public class Climber {
     
     CANJaguar tilt, lift;
-    XBoxC joy;
-    double lift_speed = .8;
-    double tilt_speed = .8;
+    double liftSpeed = .8;
+    double tiltSpeed = .8;
      
-    public Climber(int tilt_id, int lift_id, XBoxC joy)
-    {
+    public Climber (int tiltID, int liftID) {
         try {
-            tilt = new CANJaguar(tilt_id);
-            lift = new CANJaguar(lift_id);
+            tilt = new CANJaguar(tiltID);
+            lift = new CANJaguar(liftID);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();     
         }
-        this.joy = joy;
     }
     
-    public void tilt(boolean activated)
-    {
+    // direction: true = forward, false = backward
+    public void tilt (boolean direction) {
         try {
-            if (joy.getRawButton(3)){
-                tilt.setX(tilt_speed);
-            } 
-            else if (joy.getRawButton(4)){
-                tilt.setX(-tilt_speed);
+            if (direction) {
+                tilt.setX(tiltSpeed);      
+            } else if (!direction) {
+                tilt.setX(-tiltSpeed);
             }
-            else {
-                tilt.setX(0);
-            }
-        }
-       catch (CANTimeoutException ex) {
+        } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-              
     }
-     public void lift(boolean activated)
-    {
+    public void stopTilt () {
         try {
-            if (joy.getRawButton(5)){
-                lift.setX(lift_speed);
-            } 
-            else if (joy.getRawButton(6)){
-                lift.setX(-lift_speed);
-            }
-            else {
-                lift.setX(0);
-            }
-        }
-       catch (CANTimeoutException ex) {
+            tilt.setX(0);
+        } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-              
     }
     
-    
+    // direction: true = up, false = down
+    public void lift (boolean direction) {
+        try {
+            if (direction){
+                lift.setX(liftSpeed);
+            } else if (!direction) {
+                lift.setX(-liftSpeed);
+            }  
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }            
+    }
+    public void stopLift () {
+        try {
+            lift.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

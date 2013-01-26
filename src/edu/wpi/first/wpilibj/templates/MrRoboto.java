@@ -32,20 +32,30 @@ public class MrRoboto extends IterativeRobot {
                
     Shooter shooter;
     Vision camera;
+    Climber climber;
     
     public static final int
-            // TODO: get constants for motor id's
+            // TODO: constants with a val of -1 need a new val
             REAR_LEFT_DRV_ID = -1,
             FRNT_LEFT_DRV_ID = -1,
             REAR_RIGHT_DRV_ID = -1,
             FRNT_RIGHT_DRV_ID = -1,
             
             SHOOTER_DRIVE_ID = 1, 
-            LOADER_DRIVE_ID = -1, // not actually this
+            LOADER_DRIVE_ID = -1, 
             CONVEYOR_ID = -1,
-            LOADER_SWITCH_CHANNEL = -1, // not actually this
+            LOADER_SWITCH_CHANNEL = -1, 
             DRIVER_ID = 1,
-            OPERATOR_ID = 2;
+            OPERATOR_ID = 2,
+            CLIMB_TILT_ID = -1,
+            CLIMB_LIFT_ID = -1;
+
+    
+    public static final boolean
+            UP = true,
+            DOWN = false,
+            FORWARD = true,
+            BACKWARD = false;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -64,7 +74,8 @@ public class MrRoboto extends IterativeRobot {
         }
         drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
         shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL);
-        camera = new Vision();    
+        camera = new Vision();  
+        climber = new Climber(CLIMB_TILT_ID, CLIMB_LIFT_ID);
     }
  
     /**
@@ -85,15 +96,25 @@ public class MrRoboto extends IterativeRobot {
         if (XBoxC.OPERATOR.LB.nowPressed()) shooter.decrSpeed();
         if (XBoxC.OPERATOR.B.nowPressed())  shooter.toggleShooter();
         if (XBoxC.OPERATOR.A.nowPressed())  shooter.fire();
+        
+        if (XBoxC.OPERATOR.dPad.isUp())    climber.lift(UP);
+            else climber.stopLift(); 
+        if (XBoxC.OPERATOR.dPad.isDown())  climber.lift(DOWN);
+            else climber.stopLift();
+        if (XBoxC.OPERATOR.dPad.isRight()) climber.tilt(FORWARD);
+            else climber.stopTilt();
+        if (XBoxC.OPERATOR.dPad.isLeft())  climber.tilt(BACKWARD);
+            else climber.stopTilt();
         // add logic for each button here as needed
-        if (XBoxC.OPERATOR.getRawAxis(3)>.5){
+        
+        // Conveyor code here
+        if (XBoxC.OPERATOR.getRawAxis(3) > 0.5){
             try {
                 conveyor.setX(1.0);
             } catch (CANTimeoutException ex) {
                 ex.printStackTrace();
             }
-        }
-        else if(XBoxC.OPERATOR.getRawAxis(3)<-.5){
+        } else if(XBoxC.OPERATOR.getRawAxis(3) < -0.5){
             try {
                 conveyor.setX(-1.0);
             } catch (CANTimeoutException ex) {
