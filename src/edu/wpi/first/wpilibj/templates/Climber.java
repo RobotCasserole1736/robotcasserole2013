@@ -23,10 +23,14 @@ public class Climber {
             tilt = new CANJaguar(tilt_id);
             lift = new CANJaguar(lift_id);
         } catch (CANTimeoutException ex) {
+            IronChef.canClimb=false;
             ex.printStackTrace();     
         }
     }
-    
+    public void periodic(){
+        tilt(false/*unknown value and use*/);
+        lift(false/*unknown value*/);
+    }
     public void tilt(boolean activated)
     {
         try {

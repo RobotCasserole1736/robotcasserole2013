@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.Watchdog;
  */
 public class IronChef extends IterativeRobot {
     //function disable/enabling for testing purposes true=>enabled
-    
     static boolean 
             canDrive=true,
             canShoot=true,
@@ -41,25 +40,33 @@ public class IronChef extends IterativeRobot {
     Relay conveyorRelay;    
     Shooter shooter;
     Vision camera;
+    Climber climber;
+    //Loader motor may or may not be a pmw or a can
     public static final boolean LOADER_IS_CAN=false;
     public static final int
+            //Drive motors
             REAR_LEFT_DRV_ID = 8,
             FRNT_LEFT_DRV_ID = 9,
             REAR_RIGHT_DRV_ID = 10,
             FRNT_RIGHT_DRV_ID = 11,
+            //Conveyor and shooter motors and switches
             CONVEYOR_SPIKE_ID=2,
             SHOOTER_DRIVE_ID = 12, 
             LOADER_DRIVE_ID = 9,
             LOADER_SWITCH_CHANNEL=1,
+            //Climber motor ids
+            CLIMBER_LIFT_ID=-1,
+            CLIMBER_TILT_ID=-1,
+            //sidecar module id (DOUBLE CHECK THIS)
             DIGITAL_SIDECAR_MODULE=1,
-            DRIVER_ID = 2,
-            OPERATOR_ID = 1;
-    public Watchdog watchdog=Watchdog.getInstance();/**
+            //Joysitick ids
+            DRIVER_ID = 1,
+            OPERATOR_ID = 2;
+    /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit() {
-        Watchdog.getInstance().setExpiration(500);
         XBoxC.DRIVER=new XBoxC(DRIVER_ID);
         XBoxC.OPERATOR=new XBoxC(OPERATOR_ID);
         if (canDrive){
@@ -82,6 +89,9 @@ public class IronChef extends IterativeRobot {
         }
         if (canConvey){
             conveyorRelay=new Relay(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID);
+        }
+        if (canClimb){
+            climber=new Climber(CLIMBER_TILT_ID,CLIMBER_LIFT_ID);
         }
     }
  
@@ -106,6 +116,7 @@ public class IronChef extends IterativeRobot {
             if (XBoxC.OPERATOR.B.nowPressed())  shooter.toggleShooter();
             if (XBoxC.OPERATOR.A.isPressed())  shooter.fire();
         }
+        
         if (canConvey){
             if (XBoxC.OPERATOR.getTriggers()<-0.50){
                 conveyorRelay.set(Relay.Value.kForward);
@@ -115,7 +126,9 @@ public class IronChef extends IterativeRobot {
                 conveyorRelay.set(Relay.Value.kOff);
             }
         }
-        //TODO added for testing
+        if (canClimb){
+            climber.periodic();
+        }
         if ((XBoxC.DRIVER.BACK.isPressed()|XBoxC.OPERATOR.START.isPressed())&&canSwap){
             XBoxC.swapDriverAndOperator();
         }
