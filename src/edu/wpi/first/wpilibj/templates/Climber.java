@@ -6,9 +6,9 @@ package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
-
+                                  
 /**
- *
+ *  
  * @author Kristen Dunne
  */
 public class Climber {
@@ -17,11 +17,11 @@ public class Climber {
     double lift_speed = .8;
     double tilt_speed = .8;
      
-    public Climber(int tilt_id, int lift_id)
+    public Climber(int tiltID, int liftID)
     {
         try {
-            tilt = new CANJaguar(tilt_id);
-            lift = new CANJaguar(lift_id);
+            tilt = new CANJaguar(tiltID);
+            lift = new CANJaguar(liftID);
         } catch (CANTimeoutException ex) {
             IronChef.canClimb=false;
             ex.printStackTrace();     
@@ -40,17 +40,11 @@ public class Climber {
             else if (XBoxC.DRIVER.Y.isPressed()){
                 tilt.setX(-tilt_speed);
             }
-            else {
-                tilt.setX(0);
-            }
-        }
-       catch (CANTimeoutException ex) {
+        } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-              
     }
-     public void lift(boolean activated)
-    {
+    public void stopTilt () {
         try {
             if (XBoxC.DRIVER.LB.isPressed()){
                 lift.setX(lift_speed);
@@ -65,8 +59,25 @@ public class Climber {
        catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-              
     }
     
-    
+    // direction: true = up, false = down
+    public void lift (boolean direction) {
+        try {
+            if (direction){
+                lift.setX(liftSpeed);
+            } else if (!direction) {
+                lift.setX(-liftSpeed);
+            }  
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }            
+    }
+    public void stopLift () {
+        try {
+            lift.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
