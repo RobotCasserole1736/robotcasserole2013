@@ -141,19 +141,19 @@ public class XBoxC extends Joystick {
         }
         public boolean isUp(){
             double x1=play.getThrottle();
-            return x1>0 &&x1<180;
+            return x1>0 && x1<180;
         }
         public boolean isDown(){
             double x1=play.getThrottle();
-            return x1>180 &&x1<360;
+            return x1>180 && x1<360;
         }
         public boolean isLeft(){
             double x1=play.getThrottle();
-            return x1>90 &&x1<270;
+            return x1>90 && x1<270;
         }
         public boolean isRight(){
             double x1=play.getThrottle();
-            return x1>270 &&x1<90;
+            return x1>270 && x1<90;
         }
         public double get(){
             return play.getThrottle();

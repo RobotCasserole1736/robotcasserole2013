@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 public class Climber {
     
     CANJaguar tilt, lift;
-    double lift_speed = .8;
-    double tilt_speed = .8;
+    double liftSpeed = .8;
+    double tiltSpeed = .8;
      
     public Climber(int tiltID, int liftID)
     {
@@ -35,10 +35,10 @@ public class Climber {
     {
         try {
             if (XBoxC.DRIVER.X.isPressed()){
-                tilt.setX(tilt_speed);
+                tilt.setX(tiltSpeed);
             } 
             else if (XBoxC.DRIVER.Y.isPressed()){
-                tilt.setX(-tilt_speed);
+                tilt.setX(-tiltSpeed);
             }
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -47,13 +47,13 @@ public class Climber {
     public void stopTilt () {
         try {
             if (XBoxC.DRIVER.LB.isPressed()){
-                lift.setX(lift_speed);
+                lift.setX(liftSpeed);
             } 
             else if (XBoxC.DRIVER.RB.isPressed()){
-                lift.setX(-lift_speed);
+                lift.setX(-liftSpeed);
             }
             else {
-                lift.setX(0);
+                lift.setX(0.0);
             }
         }
        catch (CANTimeoutException ex) {
@@ -64,9 +64,9 @@ public class Climber {
     // direction: true = up, false = down
     public void lift (boolean direction) {
         try {
-            if (direction){
+            if (direction){ // if up
                 lift.setX(liftSpeed);
-            } else if (!direction) {
+            } else if (!direction) { // elif down
                 lift.setX(-liftSpeed);
             }  
         } catch (CANTimeoutException ex) {
@@ -75,7 +75,7 @@ public class Climber {
     }
     public void stopLift () {
         try {
-            lift.setX(0);
+            lift.setX(0.0);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
