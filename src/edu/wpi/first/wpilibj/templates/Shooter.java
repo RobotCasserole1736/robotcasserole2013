@@ -70,13 +70,13 @@ public class Shooter {
                 if (loaderIsCAN){
                     loaderMotorCAN.setX(0);
                 } else {
-                    loaderMotorPWM.setRaw(LOADER_PWM_STOP_SPEED);
+                    loaderVictor.setRaw(LOADER_PWM_STOP_SPEED);
                 }
             } else {
                 if (loaderIsCAN){
                     loaderMotorCAN.setX(LOADER_CAN_SPEED);
                 } else {
-                    loaderMotorPWM.setRaw(LOADER_PWM_SPEED);
+                    loaderVictor.setRaw(LOADER_PWM_SPEED);
                 }
             }
             loaderRunning = turnOn;
