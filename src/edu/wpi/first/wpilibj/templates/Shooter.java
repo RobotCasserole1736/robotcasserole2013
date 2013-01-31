@@ -4,18 +4,18 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.Victor;
 /*
  * @author Ian T.
  */
 public class Shooter {
     public boolean loaderIsCAN;
     CANJaguar shooterMotor,loaderMotorCAN;
-    PWM loaderMotorPWM;
+    Victor loaderVictor;
     DigitalInput loaderSwitch;
     private double m_curSpeed;
     public boolean loaderRunning; // true, loader running. false, loader read
-    private boolean m_loaderIsPressed,m_loaderWasPressed;
+    private boolean m_loaderIsPressed, m_loaderWasPressed;
     private final double 
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
@@ -31,15 +31,15 @@ public class Shooter {
         try {
             shooterMotor = new CANJaguar(shooterID);
                 shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
-                    shooterMotor.enableControl();
-                    shooterMotor.setPID(0.30, 0.005, 0.002);
-                    shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
-                    shooterMotor.configEncoderCodesPerRev(360);
-                loaderIsCAN=loaderIsCANJag;
+                shooterMotor.enableControl();
+                shooterMotor.setPID(0.30, 0.005, 0.002);
+                shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
+                shooterMotor.configEncoderCodesPerRev(360);
+            loaderIsCAN=loaderIsCANJag;
             if (loaderIsCAN){
                 loaderMotorCAN = new CANJaguar(loaderID);
             } else {
-                loaderMotorPWM=new PWM(loaderModule,loaderID);
+                loaderVictor = new Victor(loaderModule,loaderID);
                 System.out.println("PWM id");
                 System.out.println(loaderID);
             }
@@ -119,7 +119,6 @@ public class Shooter {
         }
     }
     
-    // Increases speed percentage by 5%
     public void incrSpeed() {
         if (m_curSpeed == 0.0){
             setMotorSpeed(SHOOTER_BASE_RPM);
@@ -128,7 +127,6 @@ public class Shooter {
         }
     }
     
-    // Decreases speed percentage by 5%
     public void decrSpeed() {
         if (m_curSpeed > SHOOTER_BASE_RPM) {
             setMotorSpeed(m_curSpeed - SHOOTER_RPM_INCR);
