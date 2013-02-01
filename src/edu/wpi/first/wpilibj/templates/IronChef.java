@@ -52,7 +52,9 @@ public class IronChef extends IterativeRobot {
             CONVEYOR_SPIKE_ID=2,
             SHOOTER_DRIVE_ID = 12, 
             LOADER_DRIVE_ID = 9,
+            LOADER_DRIVE_ID_FLIPPED =-1,
             LOADER_SWITCH_CHANNEL=1,
+            LOADER_SWITCH_CHANNEL_FLIPPED=1,
             //Climber motor ids
             CLIMBER_LIFT_ID=-1,
             CLIMBER_TILT_ID=-1,
@@ -81,7 +83,7 @@ public class IronChef extends IterativeRobot {
             }
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
+            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID,LOADER_DRIVE_ID_FLIPPED, LOADER_SWITCH_CHANNEL,LOADER_SWITCH_CHANNEL_FLIPPED,DIGITAL_SIDECAR_MODULE,false);
         }
         if (canSee){
             camera = new Vision();    

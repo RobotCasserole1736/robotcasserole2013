@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj.PWM;
  */
 public class Shooter {
     public boolean loaderIsCAN;
-    CANJaguar shooterMotor,loaderMotorCAN;
-    PWM loaderMotorPWM;
-    DigitalInput loaderSwitch;
+    CANJaguar shooterMotor,loaderMotorCAN,loaderMotorCANFlipped;
+    PWM loaderMotorPWM,loaderMotorPWMFlipped;
+    DigitalInput loaderSwitch,loaderFlippedSwitch;
     private double m_curSpeed;
-    public boolean loaderRunning; // true, loader running. false, loader read
-    private boolean m_loaderIsPressed,m_loaderWasPressed;
+    public boolean loaderRunning,loaderFlippedRunning; // true, loader running. false, loader read
+    private boolean m_loaderIsPressed,m_loaderWasPressed,m_loaderFlippedIsPressed,m_loaderFlippedWasPressed;
     private final double 
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
@@ -27,7 +27,7 @@ public class Shooter {
             LOADER_PWM_STOP_SPEED=127;
     
     // Class constructor
-    public Shooter(int shooterID, int loaderID, int loaderSwChannel, int loaderModule, boolean loaderIsCANJag) {
+    public Shooter(int shooterID, int loaderID,int loaderIDFlipped, int loaderSwChannel,int loaderFlSwChannel, int loaderModule, boolean loaderIsCANJag) {
         try {
             shooterMotor = new CANJaguar(shooterID);
                 shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
@@ -38,12 +38,15 @@ public class Shooter {
                 loaderIsCAN=loaderIsCANJag;
             if (loaderIsCAN){
                 loaderMotorCAN = new CANJaguar(loaderID);
+                loaderMotorCANFlipped =new CANJaguar(loaderIDFlipped);
             } else {
                 loaderMotorPWM=new PWM(loaderModule,loaderID);
+                loaderMotorPWMFlipped=new PWM(loaderModule,loaderIDFlipped);
                 System.out.println("PWM id");
                 System.out.println(loaderID);
             }
             loaderSwitch = new DigitalInput(loaderModule,loaderSwChannel);
+            loaderFlippedSwitch=new DigitalInput(loaderModule,loaderFlSwChannel);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
             IronChef.canShoot=false;
@@ -55,10 +58,18 @@ public class Shooter {
         m_loaderIsPressed = loaderSwitch.get();
         return m_loaderIsPressed && !m_loaderWasPressed;
     }
+    public boolean loaderFlippedNowPressed(){
+        m_loaderFlippedWasPressed = m_loaderFlippedIsPressed;
+        m_loaderFlippedIsPressed=loaderFlippedSwitch.get();
+        return m_loaderFlippedIsPressed && !m_loaderFlippedWasPressed;
+    }
     
     // Check switch and loader and set loader accordingly
     public void periodic() {
         if (loaderRunning && loaderNowPressed()) {
+            setLoader(false);
+        }
+        if (loaderFlippedRunning && loaderFlippedNowPressed()){
             setLoader(false);
         }
     }
@@ -92,7 +103,32 @@ public class Shooter {
             setMotorSpeed(SHOOTER_BASE_RPM);
         }
     }
-    
+    public void fireFlipped(){
+        setLoaderFlipped(true);
+        if (m_curSpeed == 0.0){
+            setMotorSpeed(SHOOTER_BASE_RPM);
+        }
+    }
+    public void setLoaderFlipped(boolean turnOn) {
+        try {
+            if (!turnOn) {
+                if (loaderIsCAN){
+                    loaderMotorCANFlipped.setX(0);
+                } else {
+                    loaderMotorPWMFlipped.setRaw(255-LOADER_PWM_STOP_SPEED);
+                }
+            } else {
+                if (loaderIsCAN){
+                    loaderMotorCANFlipped.setX(0-LOADER_CAN_SPEED);
+                } else {
+                    loaderMotorPWMFlipped.setRaw(255-LOADER_PWM_SPEED);
+                }
+            }
+            loaderFlippedRunning = turnOn;
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
     // Automatically fire a frisbee
     public void fire(double distance, double elevation) {
         
@@ -116,6 +152,12 @@ public class Shooter {
             setMotorSpeed(0.00);
         } else {
             setMotorSpeed(SHOOTER_BASE_RPM);
+            if (loaderRunning){
+                setLoader(false);
+            }
+            if (loaderFlippedRunning){
+                setLoader(true);
+            }
         }
     }
     
