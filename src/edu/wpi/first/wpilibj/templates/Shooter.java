@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.PWM;
 /*
  * @author Ian T.
  */
@@ -81,13 +81,13 @@ public class Shooter {
                 if (loaderIsCAN){
                     loaderMotorCAN.setX(0);
                 } else {
-                    loaderVictor.setRaw(LOADER_PWM_STOP_SPEED);
+                    loaderMotorPWM.setRaw(LOADER_PWM_STOP_SPEED);
                 }
             } else {
                 if (loaderIsCAN){
                     loaderMotorCAN.setX(LOADER_CAN_SPEED);
                 } else {
-                    loaderVictor.setRaw(LOADER_PWM_SPEED);
+                    loaderMotorPWM.setRaw(LOADER_PWM_SPEED);
                 }
             }
             loaderRunning = turnOn;
@@ -95,20 +95,7 @@ public class Shooter {
             ex.printStackTrace();
         }
     }
-
-    // Fire a frisbee
-    public void fire() {
-        setLoader(true);
-        if (m_curSpeed == 0.0) {
-            setMotorSpeed(SHOOTER_BASE_RPM);
-        }
-    }
-    public void fireFlipped(){
-        setLoaderFlipped(true);
-        if (m_curSpeed == 0.0){
-            setMotorSpeed(SHOOTER_BASE_RPM);
-        }
-    }
+    //set the upsidedown loader state
     public void setLoaderFlipped(boolean turnOn) {
         try {
             if (!turnOn) {
@@ -127,6 +114,20 @@ public class Shooter {
             loaderFlippedRunning = turnOn;
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
+        }
+    }
+    // Fire a frisbee
+    public void fire() {
+        setLoader(true);
+        if (m_curSpeed == 0.0) {
+            setMotorSpeed(SHOOTER_BASE_RPM);
+        }
+    }
+    //Fire an upsidedown frisbee
+    public void fireFlipped(){
+        setLoaderFlipped(true);
+        if (m_curSpeed == 0.0){
+            setMotorSpeed(SHOOTER_BASE_RPM);
         }
     }
     // Automatically fire a frisbee
@@ -161,6 +162,7 @@ public class Shooter {
         }
     }
     
+    // Increases speed percentage by 5%
     public void incrSpeed() {
         if (m_curSpeed == 0.0){
             setMotorSpeed(SHOOTER_BASE_RPM);
@@ -169,6 +171,7 @@ public class Shooter {
         }
     }
     
+    // Decreases speed percentage by 5%
     public void decrSpeed() {
         if (m_curSpeed > SHOOTER_BASE_RPM) {
             setMotorSpeed(m_curSpeed - SHOOTER_RPM_INCR);
