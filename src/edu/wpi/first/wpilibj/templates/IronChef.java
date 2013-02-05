@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 //import edu.wpi.first.wpilibj.Watchdog;
 
@@ -142,5 +143,18 @@ public class IronChef extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {    
+    }
+    public void autonomous2() {
+        //aim and fire before driving
+        
+        drive.drive(0.5, 0.8);
+        Timer.delay(0.5);
+        
+       
+        conveyorRelay.set(Relay.Value.kForward);
+        
+        
+        //aim and fire here
+        drive.drive(.5, -.2);
     }
 }
