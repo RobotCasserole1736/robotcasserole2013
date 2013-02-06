@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.Watchdog;
 
 /**
@@ -156,5 +157,52 @@ public class IronChef extends IterativeRobot {
         
         //aim and fire here
         drive.drive(.5, -.2);
+    }
+    
+    /**
+     * Get distance to the target from the SmartDashboard
+     * 
+     * @return Distance to target, in feet
+     */
+    public double getDistanceFromTarget()
+    {
+        double distance = SmartDashboard.getNumber("TargetDistance");
+        
+        //May do more stuff with this function eventually
+        
+        return distance;
+    }
+    
+    /**
+     * Gets the center of the target from SmartDashboard
+     * 
+     * @return Offset from target center, in pixels
+     */
+    public double getDistanceCenter()
+    {
+        double center = SmartDashboard.getNumber("TargetCenter");
+        
+        //May do more stuff with this function eventually
+        
+        return center;
+    }
+    
+    /**
+     * Gets the target number.  Numbering system is:
+     * 1: Top Left 2pt Target
+     * 2: Top 3pt Target
+     * 3: Top Right 2pt Target
+     * 4: Bottom (Right) 1pt Target
+     * 5: No Target Found
+     * 
+     * @return Target Number, using numbering system above
+     */
+    public int getTargetNumber()
+    {
+        int targetNum = (int) SmartDashboard.getNumber("TargetNumber");
+        
+        //May do more stuff with this function eventually
+        
+        return targetNum;
     }
 }
