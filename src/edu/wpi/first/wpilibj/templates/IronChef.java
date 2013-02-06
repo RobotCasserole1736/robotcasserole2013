@@ -85,7 +85,7 @@ public class IronChef extends IterativeRobot {
             }
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID,LOADER_DRIVE_ID_FLIPPED, LOADER_SWITCH_CHANNEL,LOADER_SWITCH_CHANNEL_FLIPPED,DIGITAL_SIDECAR_MODULE,false);
+            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID,LOADER_DRIVE_ID_FLIPPED, LOADER_SWITCH_CHANNEL,LOADER_SWITCH_CHANNEL_FLIPPED,DIGITAL_SIDECAR_MODULE,LOADER_IS_CAN);
         }
         if (canSee){
             camera = new Vision();    
