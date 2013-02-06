@@ -158,6 +158,26 @@ public class IronChef extends IterativeRobot {
         //aim and fire here
         drive.drive(.5, -.2);
     }
+    /*
+     * aimAtTarget(): returns whether or not the robot is looking at a target.
+     * If it is not looking at a target, it will turn the robot until it is.
+     */
+    public boolean aimAtTarget()
+    {
+        int deadband = 10;
+        if (Math.abs(getDistanceCenter())<deadband){
+            return true;
+        }
+        else
+        {
+            if (getDistanceCenter()>deadband) {
+                drive.drive(0, -1);
+            } else if (getDistanceCenter()<-deadband) {
+                drive.drive(0, 1);
+            }
+            return false;
+        }
+    }
     
     /**
      * Get distance to the target from the SmartDashboard
