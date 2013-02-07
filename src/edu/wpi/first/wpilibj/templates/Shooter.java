@@ -14,8 +14,19 @@ public class Shooter {
     PWM loaderMotorPWM,loaderMotorPWMFlipped;
     DigitalInput loaderSwitch,loaderFlippedSwitch;
     private double m_curSpeed;
+    double m;
     public boolean loaderRunning,loaderFlippedRunning; // true, loader running. false, loader read
     private boolean m_loaderIsPressed,m_loaderWasPressed,m_loaderFlippedIsPressed,m_loaderFlippedWasPressed;
+    private double[][] distToSpeed = /* double[distance][speedrpm] */
+        {
+            { // 2x8 dimension
+                5, 10, 15, 20, 25, 30, 35, 40
+            },
+            {
+                250, 230, 240, 250, 260, 270, 280, 290
+            }
+        };
+                     
     private final double 
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
@@ -73,7 +84,35 @@ public class Shooter {
             setLoader(false);
         }
     }
-
+    
+    public void autoSetShooterSpeed(double dist) {
+        try {
+            shooterMotor.setX(interpolate(dist));
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Returns the required rpm speed in order to shoot "dist" meters.
+     * @param dist desired distance in meters.
+     * @return shooter motor speed in rpms.
+     */
+    public double interpolate(double dist){
+        double nextDist, lastDist, thisSpeed, lastSpeed;
+        for (int i=0; i<distToSpeed[0].length; i++) {
+            if (distToSpeed[0][i] >= dist) {
+                nextDist = distToSpeed[0][i];
+                lastDist = distToSpeed[0][i-1];
+                thisSpeed = distToSpeed[1][i];
+                lastSpeed = distToSpeed[1][i-1];
+                m = ( (thisSpeed-lastSpeed) / (nextDist-lastDist) );
+                return (lastSpeed+m*(dist-lastDist));
+            }
+        }
+        return -1;
+    }
+    
     // Set the loader state
     public void setLoader(boolean turnOn) {
         try {
