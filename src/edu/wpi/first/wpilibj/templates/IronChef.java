@@ -38,7 +38,7 @@ public class IronChef extends IterativeRobot {
             rearLeftDrive,
             frontRightDrive,
             rearRightDrive;
-    Relay conveyorRelay;    
+    Conveyor conveyorRelay;
     Shooter shooter;
     Vision camera;
     Climber climber;
@@ -52,6 +52,7 @@ public class IronChef extends IterativeRobot {
             FRNT_RIGHT_DRV_ID = 11,
             //Conveyor and shooter motors and switches
             CONVEYOR_SPIKE_ID=2,
+            PLATE_ID=999,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
             SHOOTER_DRIVE_ID = 12, 
             LOADER_DRIVE_ID = 9,
             LOADER_DRIVE_ID_FLIPPED =-1,
@@ -85,13 +86,13 @@ public class IronChef extends IterativeRobot {
             }
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID,LOADER_DRIVE_ID_FLIPPED, LOADER_SWITCH_CHANNEL,LOADER_SWITCH_CHANNEL_FLIPPED,DIGITAL_SIDECAR_MODULE,false);
+            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
         }
         if (canSee){
             camera = new Vision();    
         }
         if (canConvey){
-            conveyorRelay=new Relay(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID);
+            conveyorRelay=new Conveyor(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID,PLATE_ID);
         }
         if (canClimb){
             climber=new Climber(CLIMBER_TILT_ID,CLIMBER_LIFT_ID);
@@ -118,17 +119,6 @@ public class IronChef extends IterativeRobot {
             if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrSpeed();}
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
             if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
-            if (XBoxC.OPERATOR.Y.isPressed()){ shooter.fireFlipped();}
-        }
-        
-        if (canConvey){
-            if (XBoxC.OPERATOR.getTriggers()<-0.50){
-                conveyorRelay.set(Relay.Value.kForward);
-            }else if (XBoxC.OPERATOR.getTriggers()>0.50){
-                conveyorRelay.set(Relay.Value.kReverse);
-            }else{
-                conveyorRelay.set(Relay.Value.kOff);
-            }
         }
         if (canClimb){
             climber.periodic();
@@ -152,7 +142,7 @@ public class IronChef extends IterativeRobot {
         Timer.delay(0.5);
         
        
-        conveyorRelay.set(Relay.Value.kForward);
+        conveyorRelay.goForward();
         
         
         //aim and fire here
