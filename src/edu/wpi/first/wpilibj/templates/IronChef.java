@@ -136,17 +136,39 @@ public class IronChef extends IterativeRobot {
     public void testPeriodic() {    
     }
     public void autonomous2() {
+        shooter.setMotorSpeed(shooter.SHOOTER_BASE_RPM);
+        try {
+            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
+                //waiting for wheel to speed up
+                
+            }
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
+        
+        
+        
+      
+        
         //aim and fire before driving
         
         drive.drive(0.5, 0.8);
         Timer.delay(0.5);
-        
        
+        
         conveyorRelay.goForward();
         
         
+        
         //aim and fire here
-        drive.drive(.5, -.2);
+        drive.drive(-0.5, -0.8);
+        Timer.delay(0.5);
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
     }
     
     /**
