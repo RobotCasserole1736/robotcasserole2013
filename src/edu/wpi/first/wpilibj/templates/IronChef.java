@@ -118,8 +118,8 @@ public class IronChef extends IterativeRobot {
         }
         if (canShoot){
             shooter.periodic();
-            if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrSpeed();}  
-            if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrSpeed();}
+            if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrShooterSpeed();}  
+            if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrShooterSpeed();}
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
             if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
             //if (XBoxC.OPERATOR.Y.isPressed()){ shooter.fireFlipped();}
