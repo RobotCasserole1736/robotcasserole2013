@@ -136,7 +136,7 @@ public class IronChef extends IterativeRobot {
     public void testPeriodic() {    
     }
     public void autonomous2() {
-        shooter.setMotorSpeed(shooter.SHOOTER_BASE_RPM);
+        shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
         try {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
                 //waiting for wheel to speed up
