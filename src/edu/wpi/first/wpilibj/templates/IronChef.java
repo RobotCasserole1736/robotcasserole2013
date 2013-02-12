@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,6 +43,7 @@ public class IronChef extends IterativeRobot {
     Shooter shooter;
     Vision camera;
     Climber climber;
+    Servo conveyorServo;
     //Loader motor may or may not be a pmw or a can
     public static final boolean LOADER_IS_CAN=false;
     public static final int
@@ -54,9 +56,7 @@ public class IronChef extends IterativeRobot {
             CONVEYOR_SPIKE_ID=2,
             SHOOTER_DRIVE_ID = 12, 
             LOADER_DRIVE_ID = 9,
-            LOADER_DRIVE_ID_FLIPPED =-1,
             LOADER_SWITCH_CHANNEL=1,
-            LOADER_SWITCH_CHANNEL_FLIPPED=1,
             //Climber motor ids
             CLIMBER_LIFT_ID=-1,
             CLIMBER_TILT_ID=-1,
@@ -85,7 +85,11 @@ public class IronChef extends IterativeRobot {
             }
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID,LOADER_DRIVE_ID_FLIPPED, LOADER_SWITCH_CHANNEL,LOADER_SWITCH_CHANNEL_FLIPPED,DIGITAL_SIDECAR_MODULE,false);
+            shooter = new Shooter( SHOOTER_DRIVE_ID, 
+                                   LOADER_DRIVE_ID, 
+                                   LOADER_SWITCH_CHANNEL,
+                                   DIGITAL_SIDECAR_MODULE,
+                                   LOADER_IS_CAN );
         }
         if (canSee){
             camera = new Vision();    
@@ -118,7 +122,7 @@ public class IronChef extends IterativeRobot {
             if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrSpeed();}
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
             if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
-            if (XBoxC.OPERATOR.Y.isPressed()){ shooter.fireFlipped();}
+            //if (XBoxC.OPERATOR.Y.isPressed()){ shooter.fireFlipped();}
         }
         
         if (canConvey){
