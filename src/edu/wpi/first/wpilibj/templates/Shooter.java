@@ -5,18 +5,22 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.Relay;
 /*
  * @author Ian T.
  */
 public class Shooter {
+    Relay wenchRelay;
     public boolean loaderIsCAN;
-    CANJaguar shooterMotor,loaderMotorCAN,loaderMotorCANFlipped;
-    PWM loaderMotorPWM,loaderMotorPWMFlipped;
-    DigitalInput loaderSwitch,loaderFlippedSwitch;
-    private double m_curSpeed;
-    double m;
-    public boolean loaderRunning,loaderFlippedRunning; // true, loader running. false, loader read
-    private boolean m_loaderIsPressed,m_loaderWasPressed,m_loaderFlippedIsPressed,m_loaderFlippedWasPressed;
+    CANJaguar shooterMotor,loaderMotorCAN,wenchMotor;
+    PWM loaderMotorPWM;
+    DigitalInput loaderSwitch;
+    private double m_curSpeed, m_curAngle, m_targetAngle;
+    public final double MIN_ANGLE = 30, //placeholder
+                        MAX_ANGLE = 60,
+                        ANGLE_INCR = 5;
+    public boolean loaderRunning; // true, loader running. false, loader read
+    private boolean m_loaderIsPressed,m_loaderWasPressed;
     private double[][] distToSpeed = /* double[distance][speedrpm] */
         {
             { // 2x8 dimension
@@ -27,18 +31,20 @@ public class Shooter {
             }
         };
                      
-    private final double 
+    public final double 
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
             SHOOTER_MAX_RPM = 1000.0,
             SHOOTER_BASE_RPM = 500.0,
             SHOOTER_RPM_INCR = 20.0;
-    private final int
+    public final int
             LOADER_PWM_SPEED=200,
             LOADER_PWM_STOP_SPEED=127;
     
     // Class constructor
-    public Shooter(int shooterID, int loaderID,int loaderIDFlipped, int loaderSwChannel,int loaderFlSwChannel, int loaderModule, boolean loaderIsCANJag) {
+    public Shooter(int shooterID, int loaderID,
+                   int loaderSwChannel, int loaderModule, 
+                   boolean loaderIsCANJag) {
         try {
             shooterMotor = new CANJaguar(shooterID);
                 shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
@@ -49,15 +55,12 @@ public class Shooter {
             loaderIsCAN=loaderIsCANJag;
             if (loaderIsCAN){
                 loaderMotorCAN = new CANJaguar(loaderID);
-                loaderMotorCANFlipped =new CANJaguar(loaderIDFlipped);
             } else {
                 loaderMotorPWM=new PWM(loaderModule,loaderID);
-                loaderMotorPWMFlipped=new PWM(loaderModule,loaderIDFlipped);
                 System.out.println("PWM id");
                 System.out.println(loaderID);
             }
             loaderSwitch = new DigitalInput(loaderModule,loaderSwChannel);
-            loaderFlippedSwitch=new DigitalInput(loaderModule,loaderFlSwChannel);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
             IronChef.canShoot=false;
@@ -69,18 +72,10 @@ public class Shooter {
         m_loaderIsPressed = loaderSwitch.get();
         return m_loaderIsPressed && !m_loaderWasPressed;
     }
-    public boolean loaderFlippedNowPressed(){
-        m_loaderFlippedWasPressed = m_loaderFlippedIsPressed;
-        m_loaderFlippedIsPressed=loaderFlippedSwitch.get();
-        return m_loaderFlippedIsPressed && !m_loaderFlippedWasPressed;
-    }
     
     // Check switch and loader and set loader accordingly
     public void periodic() {
         if (loaderRunning && loaderNowPressed()) {
-            setLoader(false);
-        }
-        if (loaderFlippedRunning && loaderFlippedNowPressed()){
             setLoader(false);
         }
     }
@@ -106,8 +101,8 @@ public class Shooter {
                 lastDist = distToSpeed[0][i-1];
                 thisSpeed = distToSpeed[1][i];
                 lastSpeed = distToSpeed[1][i-1];
-                m = ( (thisSpeed-lastSpeed) / (nextDist-lastDist) );
-                return (lastSpeed+m*(dist-lastDist));
+                double slope = ( (thisSpeed-lastSpeed) / (nextDist-lastDist) );
+                return (lastSpeed+slope*(dist-lastDist)); // return y 
             }
         }
         return -1;
@@ -134,38 +129,10 @@ public class Shooter {
             ex.printStackTrace();
         }
     }
-    //set the upsidedown loader state
-    public void setLoaderFlipped(boolean turnOn) {
-        try {
-            if (!turnOn) {
-                if (loaderIsCAN){
-                    loaderMotorCANFlipped.setX(0);
-                } else {
-                    loaderMotorPWMFlipped.setRaw(255-LOADER_PWM_STOP_SPEED);
-                }
-            } else {
-                if (loaderIsCAN){
-                    loaderMotorCANFlipped.setX(0-LOADER_CAN_SPEED);
-                } else {
-                    loaderMotorPWMFlipped.setRaw(255-LOADER_PWM_SPEED);
-                }
-            }
-            loaderFlippedRunning = turnOn;
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
-        }
-    }
     // Fire a frisbee
     public void fire() {
         setLoader(true);
         if (m_curSpeed == 0.0) {
-            setMotorSpeed(SHOOTER_BASE_RPM);
-        }
-    }
-    //Fire an upsidedown frisbee
-    public void fireFlipped(){
-        setLoaderFlipped(true);
-        if (m_curSpeed == 0.0){
             setMotorSpeed(SHOOTER_BASE_RPM);
         }
     }
@@ -175,10 +142,10 @@ public class Shooter {
     }
 
     // Changes the motor's speed, and updates m_curSpeed.
-    private void setMotorSpeed(double percentage) {
+    public void setMotorSpeed(double rpm) {
         try {
-            shooterMotor.setX(percentage);
-            m_curSpeed = percentage;
+            shooterMotor.setX(rpm);
+            m_curSpeed = rpm;
             SmartDashboard.putNumber("Shooter Speed set", m_curSpeed);
             SmartDashboard.putNumber("Shooter Speed get", shooterMotor.getSpeed());
         } catch (CANTimeoutException ex) {
@@ -194,10 +161,7 @@ public class Shooter {
             setMotorSpeed(SHOOTER_BASE_RPM);
             if (loaderRunning){
                 setLoader(false);
-            }
-            if (loaderFlippedRunning){
-                setLoader(true);
-            }
+            } 
         }
     }
     
