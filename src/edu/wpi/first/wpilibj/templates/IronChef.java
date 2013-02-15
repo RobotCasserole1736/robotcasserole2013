@@ -48,18 +48,19 @@ public class IronChef extends IterativeRobot {
     public static final boolean LOADER_IS_CAN=false;
     public static final int
             //Drive motors
-            REAR_LEFT_DRV_ID = 8,
-            FRNT_LEFT_DRV_ID = 9,
-            REAR_RIGHT_DRV_ID = 10,
-            FRNT_RIGHT_DRV_ID = 11,
+            REAR_LEFT_DRV_ID = 3,
+            FRNT_LEFT_DRV_ID = 10,
+            REAR_RIGHT_DRV_ID = 6,
+            FRNT_RIGHT_DRV_ID = 9,
             //Conveyor and shooter motors and switches
-            CONVEYOR_SPIKE_ID=2,
-            PLATE_ID=999,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
-            SHOOTER_DRIVE_ID = 12, 
-            LOADER_DRIVE_ID = 9,
+            CONVEYOR_SPIKE_ID=8,
+            PLATE_ID=2,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
+            SHOOTER_DRIVE_ID = 11,
+            SHOOTER_WENCH_ID = 2,
+            LOADER_DRIVE_ID = 1,
             LOADER_SWITCH_CHANNEL=1,
             //Climber motor ids
-            CLIMBER_LIFT_ID=-1,
+            CLIMBER_LIFT_ID=1,
             CLIMBER_TILT_ID=-1,
             //sidecar module id (DOUBLE CHECK THIS)
             DIGITAL_SIDECAR_MODULE=1,
@@ -73,30 +74,20 @@ public class IronChef extends IterativeRobot {
     public void robotInit() {
         XBoxC.DRIVER=new XBoxC(DRIVER_ID);
         XBoxC.OPERATOR=new XBoxC(OPERATOR_ID);
-        if (canDrive){
-            try {
-                frontLeftDrive  = new CANJaguar(FRNT_LEFT_DRV_ID);
-                rearLeftDrive   = new CANJaguar(REAR_LEFT_DRV_ID);
-                frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
-                rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
-                drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
-            } catch (CANTimeoutException ex) {
-                canDrive=false;
-                ex.printStackTrace();
-            }
+        try {
+            frontLeftDrive  = new CANJaguar(FRNT_LEFT_DRV_ID);
+            rearLeftDrive   = new CANJaguar(REAR_LEFT_DRV_ID);
+            frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
+            rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
+            drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
+        } catch (CANTimeoutException ex) {
+            canDrive=false;
+            ex.printStackTrace();
         }
-        if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
-        }
-        if (canSee){
-            camera = new Vision();    
-        }
-        if (canConvey){
-            conveyorRelay=new Conveyor(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID,PLATE_ID);
-        }
-        if (canClimb){
-            climber=new Climber(CLIMBER_TILT_ID,CLIMBER_LIFT_ID);
-        }
+        shooter = new Shooter(SHOOTER_DRIVE_ID,SHOOTER_WENCH_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
+        //camera = new Vision();    
+        conveyorRelay=new Conveyor(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID,PLATE_ID);
+        climber=new Climber(CLIMBER_TILT_ID,CLIMBER_LIFT_ID);
     }
  
     /**
@@ -110,19 +101,13 @@ public class IronChef extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        if (canDrive){
-            drive.arcadeDrive(XBoxC.DRIVER);
-        }
-        if (canShoot){
-            shooter.periodic();
-            if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrShooterSpeed();}  
-            if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrShooterSpeed();}
-            if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
-            if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
-        }
-        if (canClimb){
-            climber.periodic();
-        }
+        drive.arcadeDrive(XBoxC.DRIVER);
+        shooter.periodic();
+        if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrShooterSpeed();}  
+        if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrShooterSpeed();}
+        if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
+        if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
+        climber.periodic();
         if ((XBoxC.DRIVER.BACK.isPressed()|XBoxC.OPERATOR.START.isPressed())&&canSwap){
             XBoxC.swapDriverAndOperator();
         }
@@ -140,7 +125,7 @@ public class IronChef extends IterativeRobot {
         try {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
                 //waiting for wheel to speed up
-                
+                //TODO  put in time limit?
             }
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();

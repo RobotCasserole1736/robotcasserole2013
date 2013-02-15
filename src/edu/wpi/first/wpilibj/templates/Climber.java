@@ -19,12 +19,14 @@ public class Climber {
      
     public Climber(int tiltID, int liftID)
     {
-        try {
-            tilt = new CANJaguar(tiltID);
-            lift = new CANJaguar(liftID);
-        } catch (CANTimeoutException ex) {
-            IronChef.canClimb=false;
-            ex.printStackTrace();     
+        if (IronChef.canClimb){
+            try {
+                tilt = new CANJaguar(tiltID);
+                lift = new CANJaguar(liftID);
+            } catch (CANTimeoutException ex) {
+                IronChef.canClimb=false;
+                ex.printStackTrace();     
+            }
         }
     }
     public void periodic(){
@@ -45,19 +47,21 @@ public class Climber {
         }
     }
     public void stopTilt () {
-        try {
-            if (XBoxC.DRIVER.LB.isPressed()){
-                lift.setX(liftSpeed);
-            } 
-            else if (XBoxC.DRIVER.RB.isPressed()){
-                lift.setX(-liftSpeed);
+        if (IronChef.canClimb){
+            try {
+                if (XBoxC.DRIVER.LB.isPressed()){
+                    lift.setX(liftSpeed);
+                }    
+                else if (XBoxC.DRIVER.RB.isPressed()){
+                    lift.setX(-liftSpeed);
+                }
+                else {
+                    lift.setX(0.0);
+                }
             }
-            else {
-                lift.setX(0.0);
+            catch (CANTimeoutException ex) {
+                ex.printStackTrace();
             }
-        }
-       catch (CANTimeoutException ex) {
-            ex.printStackTrace();
         }
     }
     

@@ -11,8 +11,9 @@ import edu.wpi.first.wpilibj.Relay;
  */
 public class Shooter {
     Relay wenchRelay;
+    Relay.Value wenchDirection;
     public boolean loaderIsCAN;
-    CANJaguar shooterMotor,loaderMotorCAN,wenchMotor;
+    CANJaguar shooterMotor,loaderMotorCAN;
     PWM loaderMotorPWM;
     DigitalInput loaderSwitch;
     private double m_curSpeed, m_curAngle, m_targetAngle;
@@ -40,51 +41,64 @@ public class Shooter {
             LOADER_PWM_STOP_SPEED=127;
     
     // Class constructor
-    public Shooter(int shooterID, int loaderID,
+    public Shooter(int shooterID, int wenchID, int loaderID,
                    int loaderSwChannel, int loaderModule, 
                    boolean loaderIsCANJag) {
-        try {
-            shooterMotor = new CANJaguar(shooterID);
+        if (IronChef.canShoot){
+            try {
+                shooterMotor = new CANJaguar(shooterID);
                 shooterMotor.changeControlMode(CANJaguar.ControlMode.kSpeed);
                 shooterMotor.enableControl();
                 shooterMotor.setPID(0.30, 0.005, 0.002);
                 shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
                 shooterMotor.configEncoderCodesPerRev(360);
-            loaderIsCAN=loaderIsCANJag;
-            if (loaderIsCAN){
-                loaderMotorCAN = new CANJaguar(loaderID);
-            } else {
-                loaderMotorPWM=new PWM(loaderModule,loaderID);
-                System.out.println("PWM id");
-                System.out.println(loaderID);
+                wenchRelay= new Relay(wenchID);
+                loaderIsCAN=loaderIsCANJag;
+                if (loaderIsCAN){
+                    loaderMotorCAN = new CANJaguar(loaderID);
+                } else {
+                    loaderMotorPWM=new PWM(loaderModule,loaderID);
+                    //System.out.println("PWM id");
+                    //System.out.println(loaderID);
+                }
+                loaderSwitch = new DigitalInput(loaderModule,loaderSwChannel);
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+                IronChef.canShoot=false;
             }
-            loaderSwitch = new DigitalInput(loaderModule,loaderSwChannel);
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
-            IronChef.canShoot=false;
         }
     } 
     // Check switch and loader and set loader accordingly
     public void periodic() {
-        if (loaderRunning && loaderNowPressed()) {
-            setLoader(false);
-        }
-        //TODO updateM_curAngle
-        if (m_curAngle >m_targetAngle+.01){
-            wenchRelay.set(Relay.Value.kForward);
-        }else if (m_curAngle <m_targetAngle-.01){
-            wenchRelay.set(Relay.Value.kReverse);
-        }else{
-            stopWench();
+        if (IronChef.canShoot){
+            if (loaderRunning && loaderNowPressed()) {
+                setLoader(false);
+            }
+            //TODO updateM_curAngle
+            if (m_curAngle >m_targetAngle+.01){
+                if (wenchDirection != Relay.Value.kForward){
+                    wenchRelay.set(Relay.Value.kForward);
+                    wenchDirection = Relay.Value.kForward;
+                }
+            }else if (m_curAngle <m_targetAngle-.01){
+                if (wenchDirection != Relay.Value.kReverse){
+                    wenchRelay.set(Relay.Value.kReverse);
+                    wenchDirection = Relay.Value.kReverse;
+                }
+            }else{
+                stopWench();
+            }
         }
     }
     public double updateCurAngle(){
         //TODO
-        Relay.Value wV=wenchRelay.get();
-        if (wV==Relay.Value.kForward){
-            m_curAngle+=1;
-        }else if(wV==Relay.Value.kReverse){
-            m_curAngle-=1;
+        if (IronChef.canShoot){
+            Relay.Value wV=wenchRelay.get();
+            if (wV==Relay.Value.kForward){
+                m_curAngle+=1;
+            }else if(wV==Relay.Value.kReverse){
+                m_curAngle-=1;
+            }
         }
         return m_curAngle;
     }
@@ -105,9 +119,11 @@ public class Shooter {
         setTargetAngle(m_curAngle + ANGLE_INCR);
     }
     public void stopWench(){
-        //TODO set motors to stopped
-        wenchRelay.set(Relay.Value.kOff);
-        m_targetAngle=updateCurAngle();
+        if (IronChef.canShoot){
+            wenchRelay.set(Relay.Value.kOff);
+            wenchDirection=Relay.Value.kOff;
+            m_targetAngle=updateCurAngle();
+        }
     }
     
     
@@ -140,13 +156,15 @@ public class Shooter {
 
     // Changes the motor's speed, and updates m_curSpeed.
     public void setShooterMotorSpeed(double rpm) {
-        try {
-            shooterMotor.setX(rpm);
-            m_curSpeed = rpm;
-            SmartDashboard.putNumber("Shooter Speed set", m_curSpeed);
-            SmartDashboard.putNumber("Shooter Speed get", shooterMotor.getSpeed());
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
+        if (IronChef.canShoot){
+            try {
+                shooterMotor.setX(rpm);
+                m_curSpeed = rpm;
+                SmartDashboard.putNumber("Shooter Speed set", m_curSpeed);
+                SmartDashboard.putNumber("Shooter Speed get", shooterMotor.getSpeed());
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
         }
     }
     
@@ -178,10 +196,12 @@ public class Shooter {
         }
     }
     public void autoSetShooterSpeed(double dist) {
-        try {
-            shooterMotor.setX(interpolate(dist));
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
+        if (IronChef.canShoot){
+            try {
+                shooterMotor.setX(interpolate(dist));
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
         }
     }
     
@@ -207,23 +227,27 @@ public class Shooter {
     
     // Set the loader state
     public void setLoader(boolean turnOn) {
-        try {
-            if (!turnOn) {
-                if (loaderIsCAN){
-                    loaderMotorCAN.setX(0);
+        if (IronChef.canShoot){
+            try {
+                if (!turnOn) {
+                    if (loaderIsCAN){
+                        loaderMotorCAN.setX(0);
+                    } else {
+                        loaderMotorPWM.setRaw(LOADER_PWM_STOP_SPEED);
+                    }
                 } else {
-                    loaderMotorPWM.setRaw(LOADER_PWM_STOP_SPEED);
+                    if (loaderIsCAN){
+                        loaderMotorCAN.setX(LOADER_CAN_SPEED);
+                    } else {
+                        loaderMotorPWM.setRaw(LOADER_PWM_SPEED);
+                    }
                 }
-            } else {
-                if (loaderIsCAN){
-                    loaderMotorCAN.setX(LOADER_CAN_SPEED);
-                } else {
-                    loaderMotorPWM.setRaw(LOADER_PWM_SPEED);
-                }
+                loaderRunning = turnOn;
+            }catch (CANTimeoutException ex) {
+                ex.printStackTrace();
             }
+        }else{
             loaderRunning = turnOn;
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
-        }
+        } 
     }
 }
