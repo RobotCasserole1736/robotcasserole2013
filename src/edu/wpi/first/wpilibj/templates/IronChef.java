@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -38,10 +39,11 @@ public class IronChef extends IterativeRobot {
             rearLeftDrive,
             frontRightDrive,
             rearRightDrive;
-    Relay conveyorRelay;    
+    Conveyor conveyorRelay;
     Shooter shooter;
     Vision camera;
     Climber climber;
+    Servo conveyorServo;
     //Loader motor may or may not be a pmw or a can
     public static final boolean LOADER_IS_CAN=false;
     public static final int
@@ -52,11 +54,10 @@ public class IronChef extends IterativeRobot {
             FRNT_RIGHT_DRV_ID = 11,
             //Conveyor and shooter motors and switches
             CONVEYOR_SPIKE_ID=2,
+            PLATE_ID=999,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
             SHOOTER_DRIVE_ID = 12, 
             LOADER_DRIVE_ID = 9,
-            LOADER_DRIVE_ID_FLIPPED =-1,
             LOADER_SWITCH_CHANNEL=1,
-            LOADER_SWITCH_CHANNEL_FLIPPED=1,
             //Climber motor ids
             CLIMBER_LIFT_ID=-1,
             CLIMBER_TILT_ID=-1,
@@ -85,13 +86,13 @@ public class IronChef extends IterativeRobot {
             }
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID,LOADER_DRIVE_ID_FLIPPED, LOADER_SWITCH_CHANNEL,LOADER_SWITCH_CHANNEL_FLIPPED,DIGITAL_SIDECAR_MODULE,LOADER_IS_CAN);
+            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
         }
         if (canSee){
             camera = new Vision();    
         }
         if (canConvey){
-            conveyorRelay=new Relay(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID);
+            conveyorRelay=new Conveyor(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID,PLATE_ID);
         }
         if (canClimb){
             climber=new Climber(CLIMBER_TILT_ID,CLIMBER_LIFT_ID);
@@ -114,21 +115,10 @@ public class IronChef extends IterativeRobot {
         }
         if (canShoot){
             shooter.periodic();
-            if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrSpeed();}  
-            if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrSpeed();}
+            if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrShooterSpeed();}  
+            if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrShooterSpeed();}
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
             if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
-            if (XBoxC.OPERATOR.Y.isPressed()){ shooter.fireFlipped();}
-        }
-        
-        if (canConvey){
-            if (XBoxC.OPERATOR.getTriggers()<-0.50){
-                conveyorRelay.set(Relay.Value.kForward);
-            }else if (XBoxC.OPERATOR.getTriggers()>0.50){
-                conveyorRelay.set(Relay.Value.kReverse);
-            }else{
-                conveyorRelay.set(Relay.Value.kOff);
-            }
         }
         if (canClimb){
             climber.periodic();
@@ -146,17 +136,39 @@ public class IronChef extends IterativeRobot {
     public void testPeriodic() {    
     }
     public void autonomous2() {
+        shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
+        try {
+            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
+                //waiting for wheel to speed up
+                
+            }
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
+        
+        
+        
+      
+        
         //aim and fire before driving
         
         drive.drive(0.5, 0.8);
         Timer.delay(0.5);
-        
        
-        conveyorRelay.set(Relay.Value.kForward);
+        
+        conveyorRelay.goForward();
+        
         
         
         //aim and fire here
-        drive.drive(.5, -.2);
+        drive.drive(-0.5, -0.8);
+        Timer.delay(0.5);
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
     }
     /*
      * aimAtTarget(): returns whether or not the robot is looking at a target.
