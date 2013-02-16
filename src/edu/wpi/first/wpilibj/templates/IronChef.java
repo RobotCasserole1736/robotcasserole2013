@@ -111,6 +111,7 @@ public class IronChef extends IterativeRobot {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
                 //waiting for wheel to speed up
                 //TODO  put in time limit?
+                //why do we need a time limit?
             }
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
