@@ -28,6 +28,9 @@ public class XBoxC extends Joystick {
     }
     public XBoxC(int i){
         super(i);
+        //buttons[0]=A;
+        //buttons[1]=B;
+        //X,Y,LB,RB];
     }
     
     /**
@@ -44,11 +47,14 @@ public class XBoxC extends Joystick {
      */
     public static void periodic(){
         for (int i=0;i<DRIVER.buttons.length;i++){
-            DRIVER.buttons[i].update();
-            OPERATOR.buttons[i].update();
+            if (DRIVER.buttons[i]!=null){
+                DRIVER.buttons[i].update();
+            }
+            if (OPERATOR.buttons[i]!=null){
+                OPERATOR.buttons[i].update();
+            }
         }
     }
-    public Button[] buttons = new Button[10];
     public Button   A = new Button(1,this),
                     B=new Button(2,this),
                     X=new Button(3,this),
@@ -57,6 +63,7 @@ public class XBoxC extends Joystick {
                     RB=new Button(6,this),
                     START=new Button(8,this),
                     BACK=new Button(7,this);
+    public Button[] buttons={A,B,X,Y,LB,RB,START,BACK,left,right};
     /**
      * the trigger axis id
      */
@@ -73,13 +80,12 @@ public class XBoxC extends Joystick {
      */
     public class Button{
         XBoxC p;
-        public int id;
+        int id;
         private boolean m_isPressed, m_wasPressed;
         
         public Button(int id2,XBoxC p2){
             p=p2;
             id=id2;
-            p.buttons[id-1]=this;
         }
         public boolean isPressed(){
             return m_isPressed;
@@ -113,6 +119,7 @@ public class XBoxC extends Joystick {
         public ControlStick(int b,XBoxC p2, int axis){
             super(b,p2);
             xId=axis;
+            p=p2;
             yId=axis+1;
         }
         public double getX(){

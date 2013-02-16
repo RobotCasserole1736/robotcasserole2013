@@ -30,7 +30,7 @@ public class IronChef extends IterativeRobot {
             canDrive=true,
             canShoot=true,
             canSee=false,
-            canConvey=false,
+            canConvey=true,
             canSwap=true,
             canClimb=false;
     RobotDrive drive;
@@ -57,7 +57,7 @@ public class IronChef extends IterativeRobot {
             CONVEYOR_SPIKE_ID=8,
             PLATE_ID=2,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
             SHOOTER_DRIVE_ID = 11, 
-            LOADER_DRIVE_ID = 1,
+            LOADER_DRIVE_ID = 8,
             LOADER_SWITCH_CHANNEL=1,
             WINCH_ID = 2,
             //Climber motor ids
@@ -136,6 +136,10 @@ public class IronChef extends IterativeRobot {
         }
         if ((XBoxC.DRIVER.BACK.isPressed()|XBoxC.OPERATOR.START.isPressed())&&canSwap){
             XBoxC.swapDriverAndOperator();
+        }
+        if(canConvey)
+        {
+            conveyorRelay.convey();
         }
         // add logic for each button here as needed
         

@@ -4,8 +4,11 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -13,7 +16,7 @@ import edu.wpi.first.wpilibj.Servo;
  */
 public class Conveyor {
     
-    Relay conveyor;
+    CANJaguar conveyor;
     Servo plate;
     private static double
             PLATE_ACTIVE_ANGLE = 10,
@@ -22,27 +25,30 @@ public class Conveyor {
 
     public Conveyor (int DIGITAL_SIDECAR_MODULE, int CONVEYOR_SPIKE_ID, int PLATE_ID) {
         if (IronChef.canConvey){
-            conveyor = new Relay(DIGITAL_SIDECAR_MODULE, CONVEYOR_SPIKE_ID);
-            plate = new Servo(DIGITAL_SIDECAR_MODULE,PLATE_ID);
+            try{
+                conveyor = new CANJaguar(CONVEYOR_SPIKE_ID);
+            }catch (CANTimeoutException e){
+               e.printStackTrace();
+            }
+            plate = new Servo(PLATE_ID);
         }
     }
     
     public void convey () {
-        if (XBoxC.OPERATOR.getTriggers()<-0.50){
-            if (conveyDirection!=Relay.Value.kForward){
-                conveyor.set(Relay.Value.kForward);
+        try{
+            if (XBoxC.OPERATOR.getTriggers()<-0.50){
+                conveyor.setX(1.0);
                 plate.setAngle(PLATE_ACTIVE_ANGLE);
-            }
-        }else if (XBoxC.OPERATOR.getTriggers()>0.50){
-            if (conveyDirection!=Relay.Value.kReverse){
-                conveyor.set(Relay.Value.kReverse);
+            }else if (XBoxC.OPERATOR.getTriggers()>0.50){
+                conveyor.setX(-1.0);
                 plate.setAngle(PLATE_ACTIVE_ANGLE);
-            }
-        }else{
-            if (conveyDirection!=Relay.Value.kOff){
-                conveyor.set(Relay.Value.kOff);
+            }else{
+               
+                conveyor.setX(0.0);
                 plate.setAngle(PLATE_INACTIVE_ANGLE);
             }
+        }catch (CANTimeoutException ex){
+            ex.printStackTrace();
         }
     }
     
@@ -50,10 +56,23 @@ public class Conveyor {
         setDirection(Relay.Value.kForward);
     }
     public void setDirection(Relay.Value direction){
+        double d2=0.0;
+        if (direction==Relay.Value.kForward){
+            d2=1.0;
+        } else if(direction==Relay.Value.kReverse){
+            d2=-1.0;
+        }
+        setDirection(d2);
+    }
+    public void setDirection(double direction){
         if (IronChef.canConvey){
-            conveyor.set(direction);
-            conveyDirection=direction;
-            if (direction==Relay.Value.kOff){
+            try {
+                conveyor.setX(direction);
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
+            
+            if (direction==0.0){
                 plate.setAngle(PLATE_INACTIVE_ANGLE);
             }else{
                 plate.setAngle(PLATE_ACTIVE_ANGLE);
