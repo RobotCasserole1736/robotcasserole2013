@@ -130,6 +130,7 @@ public class IronChef extends IterativeRobot {
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
             if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
         }
+        XBoxC.periodic();
         if (canClimb){
             climber.periodic();
         }

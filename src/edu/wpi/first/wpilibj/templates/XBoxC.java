@@ -42,6 +42,13 @@ public class XBoxC extends Joystick {
     /**
      * Buttons for this player
      */
+    public static void periodic(){
+        for (int i=0;i<DRIVER.buttons.length;i++){
+            DRIVER.buttons[i].update();
+            OPERATOR.buttons[i].update();
+        }
+    }
+    public Button[] buttons = new Button[10];
     public Button   A = new Button(1,this),
                     B=new Button(2,this),
                     X=new Button(3,this),
@@ -72,8 +79,12 @@ public class XBoxC extends Joystick {
         public Button(int id2,XBoxC p2){
             p=p2;
             id=id2;
+            p.buttons[id-1]=this;
         }
-        public boolean isPressed() {
+        public boolean isPressed(){
+            return m_isPressed;
+        }
+        public boolean update() {
             m_wasPressed = m_isPressed;
             m_isPressed = get();
             return m_isPressed;
