@@ -40,7 +40,7 @@ public class Shooter {
             LOADER_PWM_STOP_SPEED=127;
     
     // Class constructor
-    public Shooter(int shooterID, int wenchID, int loaderID,
+    public Shooter(int shooterID, int loaderID,
                    int loaderSwChannel, int loaderModule, 
                    boolean loaderIsCANJag, int winchID) {
         try {
@@ -50,7 +50,7 @@ public class Shooter {
                 shooterMotor.setPID(0.30, 0.005, 0.002);
                 shooterMotor.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
                 shooterMotor.configEncoderCodesPerRev(360);
-                wenchRelay= new Relay(wenchID);
+                winchRelay= new Relay(winchID);
                 loaderIsCAN=loaderIsCANJag;
                 if (loaderIsCAN){
                     loaderMotorCAN = new CANJaguar(loaderID);
@@ -64,7 +64,6 @@ public class Shooter {
                 ex.printStackTrace();
                 IronChef.canShoot=false;
             }
-        }
         winchRelay = new Relay(winchID);
     } 
     // Check switch and loader and set loader accordingly
