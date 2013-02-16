@@ -150,7 +150,7 @@ public class IronChef extends IterativeRobot {
         try {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
                 //waiting for wheel to speed up
-                
+                //TODO  put in time limit?
             }
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
@@ -179,6 +179,26 @@ public class IronChef extends IterativeRobot {
         shooter.setLoader(true);
         Timer.delay(2);
         shooter.setLoader(false);
+    }
+    /*
+     * aimAtTarget(): returns whether or not the robot is looking at a target.
+     * If it is not looking at a target, it will turn the robot until it is.
+     */
+    public boolean aimAtTarget()
+    {
+        int deadband = 10;
+        if (Math.abs(getDistanceCenter())<deadband){
+            return true;
+        }
+        else
+        {
+            if (getDistanceCenter()>deadband) {
+                drive.drive(0, -1);
+            } else if (getDistanceCenter()<-deadband) {
+                drive.drive(0, 1);
+            }
+            return false;
+        }
     }
     
     /**
