@@ -4,7 +4,9 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
-import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
                                   
 /**
@@ -12,31 +14,44 @@ import edu.wpi.first.wpilibj.Servo;
  * @author Kristen Dunne
  */
 public class Climber {
-    
-     Servo left, right;
-     
-     private static double
-        preclimb_angle = 0,
-        climb_angle = 180;           
-     
-    public Climber(int left_id, int right_id)
+public CANJaguar motor;
+public boolean isClimbing=false;
+public Timer timer;
+    public Climber(int motor_id)
     {
         if (IronChef.canClimb){
-            left = new Servo(left_id);
-            right = new Servo(right_id);      
+            try{
+                motor=new CANJaguar(motor_id);
+                timer=new Timer();
+            }catch (CANTimeoutException ex){
+                ex.printStackTrace();
+                IronChef.canClimb=false;
+            }
         }
     }
     
     public void periodic(){
+        if (XBoxC.DRIVER.right.nowPressed()){
+            setClimbing(true);
+        }else if (timer.get()>0.1&& isClimbing){
+            setClimbing(false);
+        }
+    }
+    public void setClimbing(boolean shouldClimb){
         if (IronChef.canClimb){
-            if (XBoxC.DRIVER.getRawButton(5)){
-                //left && right.setAngle(climb_angle);
-            }
-            else {
-                //left && right.setAngle(preclimb_angle);        
+            try {
+                if (shouldClimb) { 
+                    motor.setX(1.0);
+                    timer.reset();
+                    isClimbing=true;
+                }else{
+                    motor.setX(0.0);
+                    isClimbing=false;  
+                }
+                isClimbing=shouldClimb;
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
             }
         }
     }
 }
-     
-   
