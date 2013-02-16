@@ -106,7 +106,41 @@ public class IronChef extends IterativeRobot {
      */
     public void autonomousPeriodic() {
 
+         shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
+        try {
+            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
+                //waiting for wheel to speed up
+                //TODO  put in time limit?
+            }
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
+        drive.drive(-0.5, 0);
+        Timer.delay(0.5);
+       
+        
+        conveyorRelay.goForward();
+        
+        
+      
+        drive.drive(-.5, 0.5);
+        Timer.delay(0.5);
+        drive.drive(-0.5, 0);
+        Timer.delay(0.5);        
+        drive.drive(0.5,0);
+        Timer.delay(0.5);
+        drive.drive(0, 0.5);
+        Timer.delay(0.5);
+        drive.drive(0.5,0);
+        Timer.delay(0.5);
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
     }
+
 
     /**
      * This function is called periodically during operator control
