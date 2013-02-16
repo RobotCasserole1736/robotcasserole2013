@@ -55,14 +55,13 @@ public class IronChef extends IterativeRobot {
             FRNT_RIGHT_DRV_ID = 9,
             //Conveyor and shooter motors and switches
             CONVEYOR_SPIKE_ID=8,
-            PLATE_ID=2,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
+            PLATE_ID=7,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
             SHOOTER_DRIVE_ID = 11, 
             LOADER_DRIVE_ID = 8,
             LOADER_SWITCH_CHANNEL=1,
             WINCH_ID = 2,
             //Climber motor ids
-            CLIMBER_LIFT_ID=1,
-            CLIMBER_TILT_ID=1,
+            CLIMBER_ID=1,
             //sidecar module id (DOUBLE CHECK THIS)
             DIGITAL_SIDECAR_MODULE=1,
             //Joysitick ids
@@ -97,7 +96,7 @@ public class IronChef extends IterativeRobot {
             conveyorRelay=new Conveyor(DIGITAL_SIDECAR_MODULE,CONVEYOR_SPIKE_ID,PLATE_ID);
         }
         if (canClimb){
-            climber=new Climber(CLIMBER_TILT_ID,CLIMBER_LIFT_ID);
+            climber=new Climber(CLIMBER_ID);
         }
     }
  
