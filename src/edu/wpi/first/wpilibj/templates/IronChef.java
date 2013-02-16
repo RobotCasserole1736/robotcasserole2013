@@ -30,7 +30,7 @@ public class IronChef extends IterativeRobot {
             canDrive=true,
             canShoot=true,
             canSee=false,
-            canConvey=true,
+            canConvey=false,
             canSwap=true,
             canClimb=false;
     RobotDrive drive;
@@ -39,6 +39,7 @@ public class IronChef extends IterativeRobot {
             rearLeftDrive,
             frontRightDrive,
             rearRightDrive;
+    boolean driveInverted = false;
     Conveyor conveyorRelay;
     Shooter shooter;
     Vision camera;
@@ -48,24 +49,26 @@ public class IronChef extends IterativeRobot {
     public static final boolean LOADER_IS_CAN=false;
     public static final int
             //Drive motors
-            REAR_LEFT_DRV_ID = 8,
-            FRNT_LEFT_DRV_ID = 9,
-            REAR_RIGHT_DRV_ID = 10,
-            FRNT_RIGHT_DRV_ID = 11,
+            REAR_LEFT_DRV_ID = 3,
+            FRNT_LEFT_DRV_ID = 10,
+            REAR_RIGHT_DRV_ID = 6,
+            FRNT_RIGHT_DRV_ID = 9,
             //Conveyor and shooter motors and switches
-            CONVEYOR_SPIKE_ID=2,
-            PLATE_ID=999,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
-            SHOOTER_DRIVE_ID = 12, 
-            LOADER_DRIVE_ID = 9,
+            CONVEYOR_SPIKE_ID=8,
+            PLATE_ID=2,           //PLEASE CHANGE THIS VALUE WHEN YOU FIND OUT WHAT THE ID ACTUALLY IS
+            SHOOTER_DRIVE_ID = 11, 
+            LOADER_DRIVE_ID = 1,
             LOADER_SWITCH_CHANNEL=1,
+            WINCH_ID = 2,
             //Climber motor ids
-            CLIMBER_LIFT_ID=-1,
-            CLIMBER_TILT_ID=-1,
+            CLIMBER_LIFT_ID=1,
+            CLIMBER_TILT_ID=1,
             //sidecar module id (DOUBLE CHECK THIS)
             DIGITAL_SIDECAR_MODULE=1,
             //Joysitick ids
             DRIVER_ID = 1,
             OPERATOR_ID = 2;
+            
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -81,12 +84,11 @@ public class IronChef extends IterativeRobot {
                 rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
                 drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
             } catch (CANTimeoutException ex) {
-                canDrive=false;
                 ex.printStackTrace();
             }
         }
         if (canShoot){
-            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false);
+            shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false, WINCH_ID);
         }
         if (canSee){
             camera = new Vision();    
@@ -111,7 +113,15 @@ public class IronChef extends IterativeRobot {
      */
     public void teleopPeriodic() {
         if (canDrive){
+            if (XBoxC.DRIVER.START.nowPressed()) {
+                driveInverted = !driveInverted;
+                drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, driveInverted);
+                drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, driveInverted);
+                drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, driveInverted);
+                drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, driveInverted);
+            }
             drive.arcadeDrive(XBoxC.DRIVER);
+    
         }
         if (canShoot){
             shooter.periodic();
