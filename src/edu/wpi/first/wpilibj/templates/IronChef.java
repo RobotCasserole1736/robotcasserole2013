@@ -110,41 +110,8 @@ public class IronChef extends IterativeRobot {
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-
-         shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
-        try {
-            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
-                //waiting for wheel to speed up
-                //TODO  put in time limit?
-                //why do we need a time limit?
-            }
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
-        }
-        shooter.setLoader(true);
-        Timer.delay(2);
-        shooter.setLoader(false);
-        drive.drive(-0.5, 0);
-        Timer.delay(0.5);
-       
-        
-        conveyorRelay.goForward();
-        
-        
-      
-        drive.drive(-.5, 0.5);
-        Timer.delay(0.5);
-        drive.drive(-0.5, 0);
-        Timer.delay(0.5);        
-        drive.drive(0.5,0);
-        Timer.delay(0.5);
-        drive.drive(0, 0.5);
-        Timer.delay(0.5);
-        drive.drive(0.5,0);
-        Timer.delay(0.5);
-        shooter.setLoader(true);
-        Timer.delay(2);
-        shooter.setLoader(false);
+        autonomous4();
+   
     }
 
 
@@ -188,8 +155,43 @@ public class IronChef extends IterativeRobot {
     /**
      * This function is called periodically during test mode
      */
-    public void testPeriodic() {    
+    public void testPeriodic() {   
+        
     }
+    //shoots from corner of pyramid, drives back, picks up discs from center line and shoots them
+    public void autonomous1() {
+        shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
+        try {
+            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
+                //waiting for wheel to speed up
+                //TODO  put in time limit?
+                //why do we need a time limit?
+            }
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
+        
+        drive.drive(-0.5, 0);
+        Timer.delay(0.5);     
+        conveyorRelay.goForward();   
+        drive.drive(-.5, 0.5);
+        Timer.delay(0.5);
+        drive.drive(-0.5, 0);
+        Timer.delay(0.5);        
+        drive.drive(0.5,0);
+        Timer.delay(0.5);
+        drive.drive(0, 0.5);
+        Timer.delay(0.5);
+        drive.drive(0.5,0);
+        Timer.delay(0.5);
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);
+    }
+    //shoots from corner of pyramid, drives forward and picks up discs from under pyramid, drives back and shoots them
     public void autonomous2() {
         shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
         try {
@@ -202,21 +204,13 @@ public class IronChef extends IterativeRobot {
         }
         shooter.setLoader(true);
         Timer.delay(2);
-        shooter.setLoader(false);
-        
-        
-        
-      
-        
+        shooter.setLoader(false);  
         //aim and fire before driving
         
         drive.drive(0.5, 0.8);
         Timer.delay(0.5);
-       
         
-        conveyorRelay.goForward();
-        
-        
+        conveyorRelay.goForward(); 
         
         //aim and fire here
         drive.drive(-0.5, -0.8);
@@ -229,6 +223,50 @@ public class IronChef extends IterativeRobot {
      * aimAtTarget(): returns whether or not the robot is looking at a target.
      * If it is not looking at a target, it will turn the robot until it is.
      */
+    //shoots three discs from anywhere
+    public void autonomous3(){
+        shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
+         try {
+            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
+                //waiting for wheel to speed up
+                //TODO  put in time limit?
+            }
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);  
+        //aim and fire before driving
+    }
+    //shoots discs from center of pyramid, drives forward to collect discs from under pyramid, drives back and shoots those
+    public void autonomous4() {
+        shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
+         try {
+            while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
+                //waiting for wheel to speed up
+                //TODO  put in time limit?
+            }
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);  
+        //aim and fire before driving
+        
+        drive.drive(-1.0, 0);
+        Timer.delay(0.5);
+        drive.drive(0, 0);
+        conveyorRelay.goForward();
+        drive.drive(1.0, 0);
+        Timer.delay(0.5);
+        drive.drive(0, 0);
+        shooter.setLoader(true);
+        Timer.delay(2);
+        shooter.setLoader(false);        
+    }
+          
     public boolean aimAtTarget()
     {
         int deadband = 10;
