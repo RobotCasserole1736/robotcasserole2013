@@ -171,10 +171,15 @@ public class IronChef extends IterativeRobot {
             ex.printStackTrace();
         }
         shooter.setLoader(true);
-        Timer.delay(2);
+        double startTime = Timer.getFPGATimestamp();
+        while((Timer.getFPGATimestamp() - startTime) < 2) {}
         shooter.setLoader(false);
         
-        drive.drive(-0.5, 0);
+        startTime = Timer.getFPGATimestamp();
+        while(Timer.getFPGATimestamp() - startTime < 0.5)
+        {
+            drive.drive(-0.5, 0);
+        }
         Timer.delay(0.5);     
         conveyorRelay.goForward();   
         drive.drive(-.5, 0.5);
@@ -242,29 +247,39 @@ public class IronChef extends IterativeRobot {
     //shoots discs from center of pyramid, drives forward to collect discs from under pyramid, drives back and shoots those
     public void autonomous4() {
         shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
-         try {
+        try {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
                 //waiting for wheel to speed up
                 //TODO  put in time limit?
+                //why do we need a time limit?
             }
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
         shooter.setLoader(true);
-        Timer.delay(2);
-        shooter.setLoader(false);  
-        //aim and fire before driving
+        double startTime = Timer.getFPGATimestamp();
+        while((Timer.getFPGATimestamp() - startTime) < 2) {}
+        shooter.setLoader(false);
         
-        drive.drive(-1.0, 0);
-        Timer.delay(0.5);
-        drive.drive(0, 0);
+        startTime = Timer.getFPGATimestamp();
+        while(Timer.getFPGATimestamp() - startTime < 0.5)
+        {
+            drive.drive(-0.5, 0);
+        }
+        drive.drive(0, 0);    
         conveyorRelay.goForward();
-        drive.drive(1.0, 0);
-        Timer.delay(0.5);
+        startTime = Timer.getFPGATimestamp();
+        while(Timer.getFPGATimestamp() - startTime < 0.5)
+        {
+            drive.drive(1.0, 0);
+        }    
         drive.drive(0, 0);
         shooter.setLoader(true);
-        Timer.delay(2);
-        shooter.setLoader(false);        
+        startTime = Timer.getFPGATimestamp();
+        while((Timer.getFPGATimestamp() - startTime) < 2) {}
+        shooter.setLoader(false);  
+        startTime = Timer.getFPGATimestamp();
+        while((Timer.getFPGATimestamp() - startTime) < 8) {}
     }
           
     public boolean aimAtTarget()
