@@ -19,8 +19,8 @@ public class Conveyor {
     CANJaguar conveyor;
     Servo plate;
     private static double
-            PLATE_ACTIVE_ANGLE = 10,
-            PLATE_INACTIVE_ANGLE = -10;
+            PLATE_ACTIVE_ANGLE = 100,
+            PLATE_INACTIVE_ANGLE = 70;
     private Relay.Value conveyDirection;
 
     public Conveyor (int DIGITAL_SIDECAR_MODULE, int CONVEYOR_SPIKE_ID, int PLATE_ID) {

@@ -33,7 +33,7 @@ public class Shooter {
     public final double 
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
-            SHOOTER_MAX_RPM = -3000.0,
+            SHOOTER_MAX_RPM = -4000.0,
             SHOOTER_BASE_RPM = -1000.0,
             SHOOTER_RPM_INCR = -50.0,
             LOADER_PWM_SPEED=0.5,
@@ -68,11 +68,10 @@ public class Shooter {
     // Check switch and loader and set loader accordingly
     public void periodic() {
         try {
-            SmartDashboard.putNumber("Shooter Speed Measured", shooterMotor.getSpeed());
+            SmartDashboard.putNumber("Shooter Speed Measured", -shooterMotor.getSpeed());
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-        SmartDashboard.putBoolean("Loader Switch", loaderSwitch.get());
         if (loaderRunning && loaderNowPressed()) {
             setLoader(false);
         }
@@ -150,7 +149,7 @@ public class Shooter {
         try {
             shooterMotor.setX(rpm);
             m_curSpeed = rpm;
-            SmartDashboard.putNumber("Shooter Speed Setpoint", m_curSpeed);
+            SmartDashboard.putNumber("Shooter Speed Setpoint", -m_curSpeed);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
@@ -215,7 +214,6 @@ public class Shooter {
     
     // Set the loader state
     public void setLoader(boolean turnOn) {
-        SmartDashboard.putBoolean("Loader should be", turnOn);
         if (IronChef.canShoot){
             try {
                 if (!turnOn) {

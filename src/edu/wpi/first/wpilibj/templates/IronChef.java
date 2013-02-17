@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,7 +33,7 @@ public class IronChef extends IterativeRobot {
             canSee=false,
             canConvey=true,
             canSwap=true,
-            canClimb=false;
+            canClimb=true;
     RobotDrive drive;
     CANJaguar 
             frontLeftDrive, 
@@ -44,7 +45,7 @@ public class IronChef extends IterativeRobot {
     Shooter shooter;
     Vision camera;
     Climber climber;
-    Servo conveyorServo;
+    Solenoid ovenFlames, cameraLight;
     //Loader motor may or may not be a pmw or a can
     public static final boolean LOADER_IS_CAN=false;
     public static final int
@@ -82,9 +83,14 @@ public class IronChef extends IterativeRobot {
                 frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
                 rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
                 drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
+                drive.setSensitivity(0.5);
             } catch (CANTimeoutException ex) {
                 ex.printStackTrace();
             }
+            ovenFlames = new Solenoid(1);
+            cameraLight = new Solenoid(2);
+            ovenFlames.set(true);
+            cameraLight.set(true);
         }
         if (canShoot){
             shooter = new Shooter(SHOOTER_DRIVE_ID, LOADER_DRIVE_ID, LOADER_SWITCH_CHANNEL,DIGITAL_SIDECAR_MODULE,false, WINCH_ID);
@@ -166,7 +172,7 @@ public class IronChef extends IterativeRobot {
         }
         XBoxC.periodic();
         if (canClimb){
-            climber.periodic();
+            climber.periodic(XBoxC.DRIVER.right.nowPressed());
         }
         if ((XBoxC.DRIVER.BACK.isPressed()|XBoxC.OPERATOR.START.isPressed())&&canSwap){
             XBoxC.swapDriverAndOperator();
