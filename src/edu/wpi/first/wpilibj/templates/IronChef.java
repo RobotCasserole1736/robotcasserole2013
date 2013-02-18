@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.Watchdog;
 
@@ -69,6 +70,8 @@ public class IronChef extends IterativeRobot {
             DRIVER_ID = 1,
             OPERATOR_ID = 2;
             
+    SendableChooser autoChooser;
+    String autoMode = "4";
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -109,13 +112,24 @@ public class IronChef extends IterativeRobot {
         if (canClimb){
             climber=new Climber(CLIMBER_ID);
         }
+        autoChooser = new SendableChooser();
+        autoChooser.addDefault("Auto Mode 4", "4");
+        autoChooser.addObject("Auto Mode 1", "1");
+        SmartDashboard.putData("Autonomous Mode Chooser",autoChooser);
     }
  
+    public void autonomousInit()
+    {
+        autoMode = (String) autoChooser.getSelected();
+    }
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-        autonomous4();
+        if(autoMode.equals("4"))
+            autonomous4();
+        else
+            autonomous3();
    
     }
 
@@ -262,29 +276,29 @@ public class IronChef extends IterativeRobot {
             ex.printStackTrace();
         }
         shooter.setLoader(true);
-        double startTime = Timer.getFPGATimestamp();
-        while((Timer.getFPGATimestamp() - startTime) < 2) {}
+//        while((Timer.getFPGATimestamp() - startTime) < 2) {} double startTime = Timer.getFPGATimestamp();
+//        while((Timer.getFPGATimestamp() - startTime) < 2) {}
+        Timer autoTime = new Timer();
+        autoTime.start();
+        while (autoTime.get() < 200000) {}
         shooter.setLoader(false);
         
-        startTime = Timer.getFPGATimestamp();
-        while(Timer.getFPGATimestamp() - startTime < 0.5)
+        
+        while(autoTime.get() < 4000000)
         {
             drive.drive(0.5, 0);
         }
-        drive.drive(0, 0);    
+        drive.drive(0, 0);
         conveyorRelay.goForward();
-        startTime = Timer.getFPGATimestamp();
-        while(Timer.getFPGATimestamp() - startTime < 0.5)
+        while(autoTime.get() < 4500000)
         {
-            drive.drive(-4.0, 0);
+            drive.drive(-1.0, 0);
         }    
         drive.drive(0, 0);
         shooter.setLoader(true);
-        startTime = Timer.getFPGATimestamp();
-        while((Timer.getFPGATimestamp() - startTime) < 2) {}
+        while((autoTime.get() < 650000)) {}
         shooter.setLoader(false);  
-        startTime = Timer.getFPGATimestamp();
-        while((Timer.getFPGATimestamp() - startTime) < 8) {}
+        while((autoTime.get() < 140000)) {}
     }
           
     public boolean aimAtTarget()
