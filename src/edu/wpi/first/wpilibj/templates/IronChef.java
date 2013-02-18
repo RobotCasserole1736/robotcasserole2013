@@ -280,25 +280,28 @@ public class IronChef extends IterativeRobot {
 //        while((Timer.getFPGATimestamp() - startTime) < 2) {}
         Timer autoTime = new Timer();
         autoTime.start();
-        while (autoTime.get() < 200000) {}
+        while (autoTime.get() < 2) {SmartDashboard.putNumber("Auto Timer", autoTime.get());
+        }
         shooter.setLoader(false);
         
         
-        while(autoTime.get() < 4000000)
+        while(autoTime.get() < 4)
         {
+            SmartDashboard.putNumber("Auto Timer",autoTime.get());
             drive.drive(0.5, 0);
         }
         drive.drive(0, 0);
         conveyorRelay.goForward();
-        while(autoTime.get() < 4500000)
+        while(autoTime.get() < 4.5)
         {
+            SmartDashboard.putNumber("Auto Timer",autoTime.get());
             drive.drive(-1.0, 0);
         }    
         drive.drive(0, 0);
         shooter.setLoader(true);
-        while((autoTime.get() < 650000)) {}
+        while((autoTime.get() < 6.5)) {}
         shooter.setLoader(false);  
-        while((autoTime.get() < 140000)) {}
+        while((autoTime.get() < 14)) {}
     }
           
     public boolean aimAtTarget()
