@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.Watchdog;
 
@@ -69,8 +68,6 @@ public class IronChef extends IterativeRobot {
             //Joysitick ids
             DRIVER_ID = 1,
             OPERATOR_ID = 2;
-    SendableChooser autoChooser;
-    String autoMode = "3";
             
     /**
      * This function is run when the robot is first started up and should be
@@ -107,17 +104,8 @@ public class IronChef extends IterativeRobot {
         if (canClimb){
             climber=new Climber(CLIMBER_ID);
         }
-        autoChooser = new SendableChooser();
-        autoChooser.addDefault("Default Auto Mode (3)", "3");
-        autoChooser.addObject("Auto Mode 1", "1");
-        SmartDashboard.putData("Autonomous Chooser", autoChooser);
     }
  
-    public void autonomousInit()
-    {
-        autoMode = (String) autoChooser.getSelected();
-    }
-    
     /**
      * This function is called periodically during autonomous
      */
