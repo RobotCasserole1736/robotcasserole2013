@@ -82,8 +82,13 @@ public class IronChef extends IterativeRobot {
                 rearLeftDrive   = new CANJaguar(REAR_LEFT_DRV_ID);
                 frontRightDrive = new CANJaguar(FRNT_RIGHT_DRV_ID);
                 rearRightDrive  = new CANJaguar(REAR_RIGHT_DRV_ID);
-                drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive);
+                //drive = new RobotDrive(frontLeftDrive, rearLeftDrive, frontRightDrive, rearRightDrive); //This had left and right reversed
+                drive = new RobotDrive(frontRightDrive, rearRightDrive, frontLeftDrive, rearLeftDrive);
                 drive.setSensitivity(0.5);
+                drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
+                drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+                drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
+                drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
             } catch (CANTimeoutException ex) {
                 ex.printStackTrace();
             }
@@ -122,16 +127,16 @@ public class IronChef extends IterativeRobot {
         if (canDrive){
             if (XBoxC.DRIVER.START.nowPressed()) {
                 driveInverted = !driveInverted;
-                drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, driveInverted);
-                drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, driveInverted);
-                drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, driveInverted);
-                drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, driveInverted);
+//                drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, driveInverted);
+//                drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, driveInverted);
+//                drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, driveInverted);
+//                drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, driveInverted);
             }
             drive.arcadeDrive(XBoxC.DRIVER);
     
         }
         if (canShoot){
-            shooter.periodic();
+            shooter.periodic(XBoxC.OPERATOR.right.getY());
             if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrShooterSpeed();}  
             if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrShooterSpeed();}
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
@@ -264,14 +269,14 @@ public class IronChef extends IterativeRobot {
         startTime = Timer.getFPGATimestamp();
         while(Timer.getFPGATimestamp() - startTime < 0.5)
         {
-            drive.drive(-0.5, 0);
+            drive.drive(0.5, 0);
         }
         drive.drive(0, 0);    
         conveyorRelay.goForward();
         startTime = Timer.getFPGATimestamp();
         while(Timer.getFPGATimestamp() - startTime < 0.5)
         {
-            drive.drive(1.0, 0);
+            drive.drive(-4.0, 0);
         }    
         drive.drive(0, 0);
         shooter.setLoader(true);

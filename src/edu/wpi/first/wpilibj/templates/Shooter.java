@@ -34,7 +34,7 @@ public class Shooter {
             LOADER_CAN_SPEED = 0.50,
             /* TODO: get real constants from electrical team */
             SHOOTER_MAX_RPM = -4000.0,
-            SHOOTER_BASE_RPM = -1000.0,
+            SHOOTER_BASE_RPM = -3000.0,
             SHOOTER_RPM_INCR = -50.0,
             LOADER_PWM_SPEED=0.5,
             LOADER_PWM_STOP_SPEED=0;
@@ -66,22 +66,30 @@ public class Shooter {
             }
     } 
     // Check switch and loader and set loader accordingly
-    public void periodic() {
+    public void periodic(double setWinch) {
         try {
             SmartDashboard.putNumber("Shooter Speed Measured", -shooterMotor.getSpeed());
+            SmartDashboard.putNumber("Shooter Current", shooterMotor.getOutputCurrent());
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
         if (loaderRunning && loaderNowPressed()) {
             setLoader(false);
         }
-        //TODO updateM_curAngle
-        if (m_curAngle >m_targetAngle+.01){
+//        //TODO updateM_curAngle
+//        if (m_curAngle >m_targetAngle+.1){
+//            winchRelay.set(Relay.Value.kForward);
+//        }else if (m_curAngle <m_targetAngle-.1){
+//            winchRelay.set(Relay.Value.kReverse);
+//        }else{
+//            stopWinch();
+//        }
+        if (setWinch>0.5){
             winchRelay.set(Relay.Value.kForward);
-        }else if (m_curAngle <m_targetAngle-.01){
+        } else if (setWinch<-0.5){
             winchRelay.set(Relay.Value.kReverse);
-        }else{
-            stopWinch();
+        } else {
+            winchRelay.set(Relay.Value.kOff);
         }
     }
     public double updateCurAngle(){
@@ -178,7 +186,7 @@ public class Shooter {
     
     // Decreases speed rpm 
     public void decrShooterSpeed() {
-        if (m_curSpeed < SHOOTER_BASE_RPM) {
+        if (m_curSpeed < -1000) {
             setShooterMotorSpeed(m_curSpeed - SHOOTER_RPM_INCR);
         }
     }
