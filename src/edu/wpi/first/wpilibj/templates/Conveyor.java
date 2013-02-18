@@ -27,8 +27,8 @@ public class Conveyor {
         if (IronChef.canConvey){
             try{
                 conveyor = new CANJaguar(CONVEYOR_SPIKE_ID);
-            }catch (CANTimeoutException e){
-               e.printStackTrace();
+            }catch (CANTimeoutException ex){
+               ex.printStackTrace();
             }
             plate = new Servo(PLATE_ID);
         }
@@ -36,10 +36,10 @@ public class Conveyor {
     
     public void convey () {
         try{
-            if (XBoxC.OPERATOR.getTriggers()<-0.50){
+            if (XBoxC.OPERATOR.getTriggers()> 0.50){
                 conveyor.setX(1.0);
                 plate.setAngle(PLATE_ACTIVE_ANGLE);
-            }else if (XBoxC.OPERATOR.getTriggers()>0.50){
+            }else if (XBoxC.OPERATOR.getTriggers()< -0.50){
                 conveyor.setX(-1.0);
                 plate.setAngle(PLATE_ACTIVE_ANGLE);
             }else{
