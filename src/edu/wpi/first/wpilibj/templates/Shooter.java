@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
 /*
  * @author Ian T.
@@ -91,6 +92,14 @@ public class Shooter {
         } else {
             winchRelay.set(Relay.Value.kOff);
         }
+    }
+    public void lowerShooter() {
+        Timer lower = new Timer();
+        lower.start();
+        while (lower.get() < .5) {
+            winchRelay.set(Relay.Value.kForward);
+        }
+        winchRelay.set(Relay.Value.kOff);
     }
     public double updateCurAngle(){
         //TODO

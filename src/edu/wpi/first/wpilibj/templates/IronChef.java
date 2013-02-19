@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -92,6 +93,11 @@ public class IronChef extends IterativeRobot {
                 drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
                 drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
                 drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+                //Setup for reading encoders on drive wheels
+                frontRightDrive.configEncoderCodesPerRev(360);
+                frontLeftDrive.configEncoderCodesPerRev(360);
+                frontLeftDrive.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
+                frontRightDrive.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
             } catch (CANTimeoutException ex) {
                 ex.printStackTrace();
             }
@@ -113,31 +119,45 @@ public class IronChef extends IterativeRobot {
             climber=new Climber(CLIMBER_ID);
         }
         autoChooser = new SendableChooser();
-        autoChooser.addDefault("Auto Mode 4", "4");
-        autoChooser.addObject("Auto Mode 1", "1");
+        autoChooser.addDefault("Shoot, back up, get center line discs", "4");
+        autoChooser.addObject("Just Shoot", "3");
         SmartDashboard.putData("Autonomous Mode Chooser",autoChooser);
     }
  
-    public void autonomousInit()
-    {
-        autoMode = (String) autoChooser.getSelected();
-    }
-    /**
-     * This function is called periodically during autonomous
-     */
+//    public void autonomousInit()
+//    {
+//        autoMode = (String) autoChooser.getSelected();
+//    }
+//    /**
+//     * This function is called periodically during autonomous
+//     */
     public void autonomousPeriodic() {
-        if(autoMode.equals("4"))
-            autonomous4();
-        else
-            autonomous3();
+        drive.setSafetyEnabled(false);
+//        if(autoMode.equals("4"))
+//            autonomous4();
+//        else if(autoMode.equals("3"))
+//            autonomous3();
+        autonomous4();
    
     }
 
 
+    public void teleopInit()
+    {
+        drive.setSafetyEnabled(true);
+    }
+    
     /**
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+        try {
+            SmartDashboard.putNumber("Encoder Left pos", frontLeftDrive.getPosition());
+            SmartDashboard.putNumber("Encoder Right pos", frontRightDrive.getPosition());
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
+        
         if (canDrive){
             if (XBoxC.DRIVER.START.nowPressed()) {
                 driveInverted = !driveInverted;
@@ -154,7 +174,8 @@ public class IronChef extends IterativeRobot {
             if (XBoxC.OPERATOR.RB.nowPressed()){ shooter.incrShooterSpeed();}  
             if (XBoxC.OPERATOR.LB.nowPressed()){ shooter.decrShooterSpeed();}
             if (XBoxC.OPERATOR.B.nowPressed()){  shooter.toggleShooter();}
-            if (XBoxC.OPERATOR.A.isPressed()){  shooter.fire();}
+            if (XBoxC.OPERATOR.A.isPressed()){  shooter.setLoader(true);}
+            else {shooter.setLoader(false);}
         }
         XBoxC.periodic();
         if (canClimb){
@@ -249,6 +270,8 @@ public class IronChef extends IterativeRobot {
      */
     //shoots three discs from anywhere
     public void autonomous3(){
+        Watchdog boxer = Watchdog.getInstance();
+//        shooter.lowerShooter();
         shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
          try {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
@@ -259,12 +282,18 @@ public class IronChef extends IterativeRobot {
             ex.printStackTrace();
         }
         shooter.setLoader(true);
-        Timer.delay(2);
+        Timer autoTime = new Timer();
+        autoTime.start();
+        while (autoTime.get() < 5) { 
+            boxer.feed();
+        }
         shooter.setLoader(false);  
         //aim and fire before driving
     }
     //shoots discs from center of pyramid, drives forward to collect discs from under pyramid, drives back and shoots those
     public void autonomous4() {
+        Watchdog boxer = Watchdog.getInstance();
+//        shooter.lowerShooter();
         shooter.setShooterMotorSpeed(shooter.SHOOTER_BASE_RPM);
         try {
             while(Math.abs(shooter.shooterMotor.getSpeed()-shooter.SHOOTER_BASE_RPM)>50){
@@ -280,28 +309,53 @@ public class IronChef extends IterativeRobot {
 //        while((Timer.getFPGATimestamp() - startTime) < 2) {}
         Timer autoTime = new Timer();
         autoTime.start();
-        while (autoTime.get() < 2) {SmartDashboard.putNumber("Auto Timer", autoTime.get());
+        while (autoTime.get() < 3) {
+            SmartDashboard.putNumber("Auto Timer", autoTime.get());
+            boxer.feed();
         }
         shooter.setLoader(false);
         
         
-        while(autoTime.get() < 4)
+        while(autoTime.get() < 5.3)
         {
             SmartDashboard.putNumber("Auto Timer",autoTime.get());
-            drive.drive(0.5, 0);
+            conveyorRelay.setDirection(Relay.Value.kReverse);
+            drive.arcadeDrive(-.75, .3);
+            boxer.feed();
+        }
+//        while(autoTime.get() < 5.5)
+//        {
+//            drive.arcadeDrive(-.7, .5);
+//        }
+        while(autoTime.get() < 6.3)
+        {
+            drive.arcadeDrive(-.7, -.8);
+            boxer.feed();
         }
         drive.drive(0, 0);
-        conveyorRelay.goForward();
-        while(autoTime.get() < 4.5)
+        while(autoTime.get() < 6.8)
+        {
+            drive.arcadeDrive(-.75, 0);
+        }
+        
+        while(autoTime.get() < 7.5)
+        {
+            drive.arcadeDrive(.7, .8);
+            boxer.feed();
+        }
+        drive.drive(0, 0);
+        while(autoTime.get() < 9.5)
         {
             SmartDashboard.putNumber("Auto Timer",autoTime.get());
-            drive.drive(-1.0, 0);
+            drive.drive(.75, 0);
+            boxer.feed();
         }    
         drive.drive(0, 0);
         shooter.setLoader(true);
-        while((autoTime.get() < 6.5)) {}
-        shooter.setLoader(false);  
-        while((autoTime.get() < 14)) {}
+        while((autoTime.get() < 12)) {
+            boxer.feed();
+        }
+        conveyorRelay.setDirection(0);
     }
           
     public boolean aimAtTarget()
