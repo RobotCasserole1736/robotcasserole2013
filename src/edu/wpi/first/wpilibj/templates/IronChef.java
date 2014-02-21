@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Servo;
+//import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
@@ -166,7 +166,7 @@ public class IronChef extends IterativeRobot {
 //                drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, driveInverted);
 //                drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, driveInverted);
             }
-            drive.arcadeDrive(XBoxC.DRIVER);
+            drive.drive(XBoxC.DRIVER.left.getY(), XBoxC.DRIVER.right.getX());
     
         }
         if (canShoot){
